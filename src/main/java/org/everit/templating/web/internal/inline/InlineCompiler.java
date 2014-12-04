@@ -21,7 +21,7 @@ import java.util.Map;
 
 import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.AbstractExpressionException;
-import org.everit.expression.ParserContext;
+import org.everit.expression.ParserConfiguration;
 import org.everit.templating.web.internal.inline.res.CodeNode;
 import org.everit.templating.web.internal.inline.res.CommentNode;
 import org.everit.templating.web.internal.inline.res.EndNode;
@@ -49,7 +49,7 @@ public class InlineCompiler {
     }
 
     private static int balancedCaptureWithLineAccounting(final char[] chars, int start, final int end, final char type,
-            final ParserContext pCtx) {
+            final ParserConfiguration pCtx) {
         int depth = 1;
         int st = start;
         char term = type;
@@ -81,7 +81,7 @@ public class InlineCompiler {
                         continue;
                     case '\n':
                         if (pCtx != null) {
-                            pCtx.setLineOffset((short) start);
+                            pCtx.setColumn((short) start);
                         }
                         lines++;
                     }
@@ -107,7 +107,7 @@ public class InlineCompiler {
                             case '\r':
                             case '\n':
                                 if (pCtx != null) {
-                                    pCtx.setLineOffset((short) start);
+                                    pCtx.setColumn((short) start);
                                 }
                                 lines++;
                                 break;
@@ -127,7 +127,7 @@ public class InlineCompiler {
                 }
                 else if (chars[start] == term && --depth == 0) {
                     if (pCtx != null) {
-                        pCtx.incrementLineCount(lines);
+                        pCtx.incrementLineNumber(lines);
                     }
                     return start;
                 }
@@ -218,9 +218,9 @@ public class InlineCompiler {
 
     private int captureOrbInternal() {
         try {
-            ParserContext pCtx = new ParserContext();
+            ParserConfiguration pCtx = new ParserConfiguration();
             cursor = balancedCaptureWithLineAccounting(template, start = cursor, length, '{', pCtx);
-            line += pCtx.getLineCount();
+            line += pCtx.getLineNumber();
             int ret = start + 1;
             start = cursor + 1;
             return ret;

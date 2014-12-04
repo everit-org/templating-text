@@ -1,20 +1,4 @@
-/**
- * This file is part of Everit - Web Templating.
- *
- * Everit - Web Templating is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Everit - Web Templating is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Everit - Web Templating.  If not, see <http://www.gnu.org/licenses/>.
- */
-package org.everit.templating.web.internal.inline.res;
+package org.everit.templating.text.internal.res;
 
 import java.io.Writer;
 import java.util.ArrayList;
@@ -24,10 +8,7 @@ import java.util.Map;
 import org.everit.expression.AbstractExpressionException;
 import org.everit.expression.CompiledExpression;
 import org.everit.expression.ExpressionCompiler;
-import org.everit.templating.web.internal.InheritantMap;
-import org.everit.templating.web.internal.inline.InlineRuntime;
-import org.everit.templating.web.internal.util.EWTUtil;
-import org.everit.templating.web.internal.util.UniversalIterable;
+import org.everit.templating.text.internal.InlineRuntime;
 
 public class ForEachNode extends Node {
     private CompiledExpression[] ce;

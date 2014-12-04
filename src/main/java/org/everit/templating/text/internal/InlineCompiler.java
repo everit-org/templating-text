@@ -1,38 +1,22 @@
-/**
- * This file is part of Everit - Web Templating.
- *
- * Everit - Web Templating is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Everit - Web Templating is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Everit - Web Templating.  If not, see <http://www.gnu.org/licenses/>.
- */
-package org.everit.templating.web.internal.inline;
+package org.everit.templating.text.internal;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.AbstractExpressionException;
+import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.ParserConfiguration;
-import org.everit.templating.web.internal.inline.res.CodeNode;
-import org.everit.templating.web.internal.inline.res.CommentNode;
-import org.everit.templating.web.internal.inline.res.EndNode;
-import org.everit.templating.web.internal.inline.res.ExpressionNode;
-import org.everit.templating.web.internal.inline.res.ForEachNode;
-import org.everit.templating.web.internal.inline.res.IfNode;
-import org.everit.templating.web.internal.inline.res.Node;
-import org.everit.templating.web.internal.inline.res.Opcodes;
-import org.everit.templating.web.internal.inline.res.TerminalExpressionNode;
-import org.everit.templating.web.internal.inline.res.TerminalNode;
-import org.everit.templating.web.internal.inline.res.TextNode;
+import org.everit.templating.text.internal.res.CodeNode;
+import org.everit.templating.text.internal.res.CommentNode;
+import org.everit.templating.text.internal.res.EndNode;
+import org.everit.templating.text.internal.res.ExpressionNode;
+import org.everit.templating.text.internal.res.ForEachNode;
+import org.everit.templating.text.internal.res.IfNode;
+import org.everit.templating.text.internal.res.Node;
+import org.everit.templating.text.internal.res.Opcodes;
+import org.everit.templating.text.internal.res.TerminalExpressionNode;
+import org.everit.templating.text.internal.res.TerminalNode;
+import org.everit.templating.text.internal.res.TextNode;
 
 public class InlineCompiler {
     private static final Map<String, Integer> OPCODES = new HashMap<String, Integer>();
@@ -160,7 +144,7 @@ public class InlineCompiler {
         return cursor;
     }
 
-    public static CompiledInline compileTemplate(final String template, ExpressionCompiler expressionCompiler) {
+    public static CompiledInline compileTemplate(final String template, final ExpressionCompiler expressionCompiler) {
         return new InlineCompiler(template, expressionCompiler).compile();
     }
 
@@ -203,7 +187,7 @@ public class InlineCompiler {
 
     private char[] template;
 
-    public InlineCompiler(final String template, ExpressionCompiler expressionCompiler) {
+    public InlineCompiler(final String template, final ExpressionCompiler expressionCompiler) {
         this.expressionCompiler = expressionCompiler;
         this.length = (this.template = template.toCharArray()).length;
     }
@@ -402,7 +386,8 @@ public class InlineCompiler {
         }
 
         if (!stack.isEmpty()) {
-            AbstractExpressionException ce = new AbstractExpressionException("unclosed @" + ((Node) stack.peek()).getName()
+            AbstractExpressionException ce = new AbstractExpressionException("unclosed @"
+                    + ((Node) stack.peek()).getName()
                     + "{} block. expected @end{}", template, cursor);
             ce.setColumn(cursor - colStart);
             ce.setLineNumber(line);

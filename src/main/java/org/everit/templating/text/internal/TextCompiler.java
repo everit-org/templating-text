@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.everit.expression.AbstractExpressionException;
+import org.everit.expression.CompileException;
 import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.ParserConfiguration;
 import org.everit.templating.text.internal.res.CodeNode;
@@ -18,7 +19,7 @@ import org.everit.templating.text.internal.res.TerminalExpressionNode;
 import org.everit.templating.text.internal.res.TerminalNode;
 import org.everit.templating.text.internal.res.TextNode;
 
-public class InlineCompiler {
+public class TextCompiler {
     private static final Map<String, Integer> OPCODES = new HashMap<String, Integer>();
     static {
         OPCODES.put("if", Opcodes.IF);
@@ -29,7 +30,6 @@ public class InlineCompiler {
 
         OPCODES.put("comment", Opcodes.COMMENT);
         OPCODES.put("code", Opcodes.CODE);
-        OPCODES.put("eval", Opcodes.EVAL);
     }
 
     private static int balancedCaptureWithLineAccounting(final char[] chars, int start, final int end, final char type,
@@ -144,10 +144,6 @@ public class InlineCompiler {
         return cursor;
     }
 
-    public static CompiledInline compileTemplate(final String template, final ExpressionCompiler expressionCompiler) {
-        return new InlineCompiler(template, expressionCompiler).compile();
-    }
-
     public static boolean isIdentifierPart(final int c) {
         return ((c > 96 && c < 123)
                 || (c > 64 && c < 91) || (c > 47 && c < 58) || (c == '_') || (c == '$')
@@ -187,7 +183,7 @@ public class InlineCompiler {
 
     private char[] template;
 
-    public InlineCompiler(final String template, final ExpressionCompiler expressionCompiler) {
+    public TextCompiler(final String template, final ExpressionCompiler expressionCompiler, ParserConfiguration parserConfiguration) {
         this.expressionCompiler = expressionCompiler;
         this.length = (this.template = template.toCharArray()).length;
     }
@@ -366,7 +362,7 @@ public class InlineCompiler {
                 cursor++;
             }
         } catch (RuntimeException e) {
-            AbstractExpressionException ce = new AbstractExpressionException(e.getMessage(), template, cursor, e);
+            AbstractExpressionException ce = new CompileException(e.getMessage(), template, cursor, e);
             ce.setExpr(template);
 
             if (e instanceof AbstractExpressionException) {
@@ -386,7 +382,7 @@ public class InlineCompiler {
         }
 
         if (!stack.isEmpty()) {
-            AbstractExpressionException ce = new AbstractExpressionException("unclosed @"
+            AbstractExpressionException ce = new CompileException("unclosed @"
                     + ((Node) stack.peek()).getName()
                     + "{} block. expected @end{}", template, cursor);
             ce.setColumn(cursor - colStart);

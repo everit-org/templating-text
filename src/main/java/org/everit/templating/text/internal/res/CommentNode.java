@@ -1,9 +1,9 @@
 package org.everit.templating.text.internal.res;
 
-import java.io.Writer;
 import java.util.Map;
 
-import org.everit.templating.text.internal.InlineRuntime;
+import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.TemplateWriter;
 
 public class CommentNode extends Node {
     public CommentNode() {
@@ -27,7 +27,7 @@ public class CommentNode extends Node {
     }
 
     @Override
-    public Object eval(final InlineRuntime runtime, final Writer appender, final Object ctx,
+    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
         if (next != null) {
             return next.eval(runtime, appender, ctx, vars);

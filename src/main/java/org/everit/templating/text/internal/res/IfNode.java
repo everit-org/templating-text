@@ -1,11 +1,11 @@
 package org.everit.templating.text.internal.res;
 
-import java.io.Writer;
 import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
 import org.everit.expression.ExpressionCompiler;
-import org.everit.templating.text.internal.InlineRuntime;
+import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.TemplateWriter;
 
 public class IfNode extends Node {
 
@@ -38,7 +38,7 @@ public class IfNode extends Node {
     }
 
     @Override
-    public Object eval(final InlineRuntime runtime, final Writer appender, final Object ctx,
+    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
         if (evalCE(vars)) {
             return trueNode.eval(runtime, appender, ctx, vars);

@@ -1,29 +1,36 @@
 package org.everit.templating.text.internal;
 
+import java.io.Writer;
+import java.util.Map;
+
+import org.everit.templating.CompiledTemplate;
 import org.everit.templating.text.internal.res.Node;
 
-public class CompiledInline {
-    private Node root;
-    private char[] template;
+/**
+ * This is the root of the template runtime, and contains various utility methods for executing templates.
+ */
+public class CompiledInline implements CompiledTemplate {
 
-    public CompiledInline(final char[] template, final Node root) {
-        this.template = template;
-        this.root = root;
+    private final Node rootNode;
+
+    public CompiledInline(final Node rootNode) {
+        this.rootNode = rootNode;
     }
 
-    public Node getRoot() {
-        return root;
+    @Override
+    public void render(final Writer writer, final Map<String, Object> vars) {
+        TemplateWriter templateWriter = new TemplateWriter(writer);
+        rootNode.eval(this, templateWriter, null, vars);
+
     }
 
-    public char[] getTemplate() {
-        return template;
+    @Override
+    public void render(final Writer writer, final Map<String, Object> vars, final String bookmark) {
+        if (bookmark == null) {
+            render(writer, vars);
+        } else {
+            throw new UnsupportedOperationException("No bookmark support yet, sorry");
+        }
     }
 
-    public void setRoot(final Node root) {
-        this.root = root;
-    }
-
-    public void setTemplate(final char[] template) {
-        this.template = template;
-    }
 }

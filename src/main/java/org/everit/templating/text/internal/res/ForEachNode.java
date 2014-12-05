@@ -1,6 +1,5 @@
 package org.everit.templating.text.internal.res;
 
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
@@ -8,7 +7,9 @@ import java.util.Map;
 import org.everit.expression.AbstractExpressionException;
 import org.everit.expression.CompiledExpression;
 import org.everit.expression.ExpressionCompiler;
-import org.everit.templating.text.internal.InlineRuntime;
+import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.InheritantMap;
+import org.everit.templating.text.internal.TemplateWriter;
 
 public class ForEachNode extends Node {
     private CompiledExpression[] ce;
@@ -96,7 +97,7 @@ public class ForEachNode extends Node {
     }
 
     @Override
-    public Object eval(final InlineRuntime runtime, final Writer appender, final Object ctx,
+    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
 
         Iterator<?>[] iters = new Iterator[item.length];

@@ -3,17 +3,19 @@ package org.everit.templating.text.internal.res;
 import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
-import org.everit.expression.ExpressionCompiler;
-import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.CompilableNodeHelper;
+import org.everit.templating.text.internal.CompiledTemplateImpl;
 import org.everit.templating.text.internal.TemplateWriter;
 
 public class TerminalExpressionNode extends Node {
     private final CompiledExpression ce;
 
-    public TerminalExpressionNode(final Node node, final ExpressionCompiler expressionCompiler) {
+    public TerminalExpressionNode(final Node node, final CompilableNodeHelper helper) {
         this.begin = node.begin;
         this.name = node.name;
-        ce = expressionCompiler.compile(String.valueOf(node.contents, node.cStart, node.cEnd - node.cStart));
+        ce = helper.getExpressionCompiler().compile(
+                String.valueOf(node.contents, node.cStart, node.cEnd - node.cStart),
+                helper.generateParserConfiguration(cStart + 1));
     }
 
     @Override
@@ -22,7 +24,7 @@ public class TerminalExpressionNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
+    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
         return ce.eval(vars);
     }

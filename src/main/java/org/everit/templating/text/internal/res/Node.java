@@ -2,8 +2,9 @@ package org.everit.templating.text.internal.res;
 
 import java.util.Map;
 
-import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.CompiledTemplateImpl;
 import org.everit.templating.text.internal.TemplateWriter;
+import org.everit.templating.text.internal.TextTemplateUtil;
 
 public abstract class Node {
     protected int begin;
@@ -41,12 +42,12 @@ public abstract class Node {
     }
 
     public void calculateContents(final char[] template) {
-        this.contents = EWTUtil.subset(template, cStart, end - cStart);
+        this.contents = TextTemplateUtil.subset(template, cStart, end - cStart);
     }
 
     public abstract boolean demarcate(Node terminatingNode, char[] template);
 
-    public abstract Object eval(CompiledInline runtime, TemplateWriter writer, Object ctx,
+    public abstract Object eval(CompiledTemplateImpl runtime, TemplateWriter writer, Object ctx,
             Map<String, Object> vars);
 
     public int getBegin() {

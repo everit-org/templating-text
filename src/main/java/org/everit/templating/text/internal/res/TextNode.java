@@ -2,19 +2,16 @@ package org.everit.templating.text.internal.res;
 
 import java.util.Map;
 
-import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.CompiledTemplateImpl;
 import org.everit.templating.text.internal.TemplateWriter;
 
 public class TextNode extends Node {
-    public TextNode(final int begin, final int end) {
-        this.begin = begin;
-        this.end = end;
-    }
+    private final String text;
 
-    public TextNode(final int begin, final int end, final ExpressionNode next) {
+    public TextNode(final String text, final int begin, final int end) {
+        this.text = text;
         this.begin = begin;
         this.end = end;
-        this.next = next;
     }
 
     @Override
@@ -27,11 +24,11 @@ public class TextNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
+    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
         int len = end - begin;
         if (len != 0) {
-            appender.append(new String(runtime.getTemplate(), begin, len));
+            appender.append(text);
         }
         return next != null ? next.eval(runtime, appender, ctx, vars) : null;
     }

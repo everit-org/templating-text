@@ -2,7 +2,7 @@ package org.everit.templating.text.internal.res;
 
 import java.util.Map;
 
-import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.CompiledTemplateImpl;
 import org.everit.templating.text.internal.TemplateWriter;
 
 public class EndNode extends Node {
@@ -12,7 +12,7 @@ public class EndNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledInline runtie, final TemplateWriter appender, final Object ctx,
+    public Object eval(final CompiledTemplateImpl runtie, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
         return appender.toString();
     }

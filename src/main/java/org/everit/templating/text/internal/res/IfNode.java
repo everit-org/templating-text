@@ -3,9 +3,10 @@ package org.everit.templating.text.internal.res;
 import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
-import org.everit.expression.ExpressionCompiler;
-import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.CompilableNodeHelper;
+import org.everit.templating.text.internal.CompiledTemplateImpl;
 import org.everit.templating.text.internal.TemplateWriter;
+import org.everit.templating.text.internal.TextTemplateUtil;
 
 public class IfNode extends Node {
 
@@ -16,17 +17,19 @@ public class IfNode extends Node {
     protected Node trueNode;
 
     public IfNode(final int begin, final String name, final char[] template, final int start, final int end,
-            final ExpressionCompiler compiler) {
+            final CompilableNodeHelper helper) {
         super(begin, name, template, start, end);
-        while (cEnd > cStart && EWTUtil.isWhitespace(template[cEnd])) {
+        while (cEnd > cStart && TextTemplateUtil.isWhitespace(template[cEnd])) {
             cEnd--;
         }
 
-        while (cEnd > cStart && EWTUtil.isWhitespace(template[cEnd])) {
+        while (cEnd > cStart && TextTemplateUtil.isWhitespace(template[cEnd])) {
             cEnd--;
         }
         if (cStart != cEnd) {
-            ce = compiler.compile(String.valueOf(template, cStart, cEnd - start));
+            ce = helper.getExpressionCompiler()
+                    .compile(String.valueOf(template, cStart, cEnd - start),
+                            helper.generateParserConfiguration(cStart + 1));
         }
     }
 
@@ -38,7 +41,7 @@ public class IfNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
+    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
         if (evalCE(vars)) {
             return trueNode.eval(runtime, appender, ctx, vars);

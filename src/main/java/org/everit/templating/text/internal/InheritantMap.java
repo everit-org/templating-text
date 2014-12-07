@@ -11,9 +11,12 @@ public class InheritantMap<K, V> implements Map<K, V> {
 
     private final Map<K, V> parentMap;
 
-    public InheritantMap(final Map<K, V> parentMap) {
+    private final boolean updateOnParent;
+
+    public InheritantMap(final Map<K, V> parentMap, final boolean updateOnParent) {
         this.parentMap = parentMap;
         this.internalMap = new HashMap<K, V>();
+        this.updateOnParent = updateOnParent;
     }
 
     @Override
@@ -115,7 +118,7 @@ public class InheritantMap<K, V> implements Map<K, V> {
 
     @Override
     public V put(final K key, final V value) {
-        if (parentMap != null && parentMap.containsKey(key)) {
+        if (updateOnParent && parentMap != null && parentMap.containsKey(key)) {
             return parentMap.put(key, value);
         } else {
             return internalMap.put(key, value);

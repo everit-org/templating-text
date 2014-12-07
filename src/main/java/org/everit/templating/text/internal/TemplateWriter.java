@@ -11,7 +11,7 @@ public class TemplateWriter {
         this.writer = writer;
     }
 
-    TemplateWriter append(final String text) {
+    public TemplateWriter append(final String text) {
         try {
             this.writer.write(text);
         } catch (IOException e) {

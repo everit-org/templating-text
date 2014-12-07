@@ -4,19 +4,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.everit.expression.AbstractExpressionException;
+import org.everit.expression.CompileException;
 import org.everit.expression.CompiledExpression;
-import org.everit.expression.ExpressionCompiler;
-import org.everit.templating.text.internal.CompiledInline;
+import org.everit.templating.text.internal.CompilableNodeHelper;
+import org.everit.templating.text.internal.CompiledTemplateImpl;
 import org.everit.templating.text.internal.InheritantMap;
 import org.everit.templating.text.internal.TemplateWriter;
+import org.everit.templating.text.internal.TextTemplateUtil;
+import org.everit.templating.text.internal.UniversalIterable;
 
 public class ForEachNode extends Node {
     private CompiledExpression[] ce;
 
     private CompiledExpression cSepExpr;
 
-    private final ExpressionCompiler expressionCompiler;
+    private CompilableNodeHelper helper;
+
     private String[] item;
 
     public Node nestedNode;
@@ -24,9 +27,9 @@ public class ForEachNode extends Node {
     private char[] sepExpr;
 
     public ForEachNode(final int begin, final String name, final char[] template, final int start,
-            final int end, final ExpressionCompiler expressionCompiler) {
+            final int end, final CompilableNodeHelper helper) {
         super(begin, name, template, start, end);
-        this.expressionCompiler = expressionCompiler;
+        this.helper = helper;
         configure();
     }
 
@@ -42,18 +45,18 @@ public class ForEachNode extends Node {
             case '{':
             case '"':
             case '\'':
-                i = EWTUtil.balancedCapture(contents, i, contents[i]);
+                i = TextTemplateUtil.balancedCapture(contents, i, contents[i]);
                 break;
             case ':':
-                items.add(EWTUtil.createStringTrimmed(contents, start, i - start));
+                items.add(TextTemplateUtil.createStringTrimmed(contents, start, i - start));
                 start = i + 1;
                 break;
             case ',':
                 if (expr.size() != (items.size() - 1)) {
-                    throw new AbstractExpressionException("unexpected character ',' in foreach tag", contents, cStart
+                    throw new CompileException("unexpected character ',' in foreach tag", contents, cStart
                             + i);
                 }
-                expr.add(EWTUtil.createStringTrimmed(contents, start, i - start));
+                expr.add(TextTemplateUtil.createStringTrimmed(contents, start, i - start));
                 start = i + 1;
                 break;
             }
@@ -61,9 +64,9 @@ public class ForEachNode extends Node {
 
         if (start < cEnd) {
             if (expr.size() != (items.size() - 1)) {
-                throw new AbstractExpressionException("expected character ':' in foreach tag", contents, cEnd);
+                throw new CompileException("expected character ':' in foreach tag", contents, cEnd);
             }
-            expr.add(EWTUtil.createStringTrimmed(contents, start, cEnd - start));
+            expr.add(TextTemplateUtil.createStringTrimmed(contents, start, cEnd - start));
         }
 
         item = new String[items.size()];
@@ -76,7 +79,8 @@ public class ForEachNode extends Node {
         ce = new CompiledExpression[(expression = new String[expr.size()]).length];
         i = 0;
         for (String s : expr) {
-            ce[i] = expressionCompiler.compile(expression[i++] = s);
+            ce[i] = helper.getExpressionCompiler().compile(expression[i++] = s,
+                    helper.generateParserConfiguration(cStart + 1));
         }
     }
 
@@ -90,14 +94,15 @@ public class ForEachNode extends Node {
             sepExpr = null;
         }
         else {
-            cSepExpr = expressionCompiler.compile(String.valueOf(sepExpr));
+            cSepExpr = helper.getExpressionCompiler().compile(String.valueOf(sepExpr),
+                    helper.generateParserConfiguration(cStart + 1));
         }
 
         return false;
     }
 
     @Override
-    public Object eval(final CompiledInline runtime, final TemplateWriter appender, final Object ctx,
+    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
             final Map<String, Object> vars) {
 
         Iterator<?>[] iters = new Iterator[item.length];
@@ -107,7 +112,7 @@ public class ForEachNode extends Node {
             iters[i] = new UniversalIterable<Object>(o).iterator();
         }
 
-        Map<String, Object> localVars = new InheritantMap<String, Object>(vars);
+        Map<String, Object> localVars = new InheritantMap<String, Object>(vars, true);
 
         int iterate = iters.length;
 

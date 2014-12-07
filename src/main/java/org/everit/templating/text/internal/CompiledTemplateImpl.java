@@ -1,19 +1,21 @@
 package org.everit.templating.text.internal;
 
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.everit.templating.CompiledTemplate;
+import org.everit.templating.TemplateConstants;
 import org.everit.templating.text.internal.res.Node;
 
 /**
  * This is the root of the template runtime, and contains various utility methods for executing templates.
  */
-public class CompiledInline implements CompiledTemplate {
+public class CompiledTemplateImpl implements CompiledTemplate {
 
     private final Node rootNode;
 
-    public CompiledInline(final Node rootNode) {
+    public CompiledTemplateImpl(final Node rootNode) {
         this.rootNode = rootNode;
     }
 
@@ -26,8 +28,8 @@ public class CompiledInline implements CompiledTemplate {
 
     @Override
     public void render(final Writer writer, final Map<String, Object> vars, final String bookmark) {
-        if (bookmark == null) {
-            render(writer, vars);
+        if (bookmark == null || TemplateConstants.BOOKMARK_ROOT.equals(bookmark)) {
+            render(writer, new HashMap<String, Object>(vars));
         } else {
             throw new UnsupportedOperationException("No bookmark support yet, sorry");
         }

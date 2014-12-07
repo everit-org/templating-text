@@ -21,6 +21,7 @@ import org.everit.templating.text.internal.res.TextNode;
 
 public class TextCompiler {
     private static final Map<String, Integer> OPCODES = new HashMap<String, Integer>();
+
     static {
         OPCODES.put("if", Opcodes.IF);
         OPCODES.put("else", Opcodes.ELSE);
@@ -33,7 +34,7 @@ public class TextCompiler {
     }
 
     private static int balancedCaptureWithLineAccounting(final char[] chars, int start, final int end, final char type,
-            final ParserConfiguration pCtx) {
+            final ParserContext pCtx) {
         int depth = 1;
         int st = start;
         char term = type;
@@ -65,7 +66,7 @@ public class TextCompiler {
                         continue;
                     case '\n':
                         if (pCtx != null) {
-                            pCtx.setColumn((short) start);
+                            pCtx.setLineOffset((short) start);
                         }
                         lines++;
                     }
@@ -91,7 +92,7 @@ public class TextCompiler {
                             case '\r':
                             case '\n':
                                 if (pCtx != null) {
-                                    pCtx.setColumn((short) start);
+                                    pCtx.setLineOffset((short) start);
                                 }
                                 lines++;
                                 break;
@@ -111,7 +112,7 @@ public class TextCompiler {
                 }
                 else if (chars[start] == term && --depth == 0) {
                     if (pCtx != null) {
-                        pCtx.incrementLineNumber(lines);
+                        pCtx.incrementLineCount(lines);
                     }
                     return start;
                 }
@@ -120,13 +121,13 @@ public class TextCompiler {
 
         switch (type) {
         case '[':
-            throw new AbstractExpressionException("unbalanced braces [ ... ]", chars, st);
+            throw new CompileException("unbalanced braces [ ... ]", chars, st);
         case '{':
-            throw new AbstractExpressionException("unbalanced braces { ... }", chars, st);
+            throw new CompileException("unbalanced braces { ... }", chars, st);
         case '(':
-            throw new AbstractExpressionException("unbalanced braces ( ... )", chars, st);
+            throw new CompileException("unbalanced braces ( ... )", chars, st);
         default:
-            throw new AbstractExpressionException("unterminated string literal", chars, st);
+            throw new CompileException("unterminated string literal", chars, st);
         }
     }
 
@@ -138,7 +139,7 @@ public class TextCompiler {
         }
 
         if (cursor >= end || expr[cursor] != type) {
-            throw new AbstractExpressionException("unterminated string literal", expr, cursor);
+            throw new CompileException("unterminated string literal", expr, cursor);
         }
 
         return cursor;
@@ -179,12 +180,16 @@ public class TextCompiler {
 
     private int line;
 
+    private final ParserConfiguration parserConfiguration;
+
     private int start;
 
     private char[] template;
 
-    public TextCompiler(final String template, final ExpressionCompiler expressionCompiler, ParserConfiguration parserConfiguration) {
+    public TextCompiler(final String template, final ExpressionCompiler expressionCompiler,
+            final ParserConfiguration parserConfiguration) {
         this.expressionCompiler = expressionCompiler;
+        this.parserConfiguration = parserConfiguration;
         this.length = (this.template = template.toCharArray()).length;
     }
 
@@ -198,9 +203,9 @@ public class TextCompiler {
 
     private int captureOrbInternal() {
         try {
-            ParserConfiguration pCtx = new ParserConfiguration();
+            ParserContext pCtx = new ParserContext();
             cursor = balancedCaptureWithLineAccounting(template, start = cursor, length, '{', pCtx);
-            line += pCtx.getLineNumber();
+            line += pCtx.getLineCount();
             int ret = start + 1;
             start = cursor + 1;
             return ret;
@@ -222,16 +227,16 @@ public class TextCompiler {
         return -1;
     }
 
-    public CompiledInline compile() {
-        return new CompiledInline(template, compileFrom(null, new ExecutionStack()));
+    public CompiledTemplateImpl compile() {
+        return new CompiledTemplateImpl(compileFrom(null, new ExecutionStack()));
     }
 
     public Node compileFrom(Node root, final ExecutionStack stack) {
-        line = 1;
+        line = parserConfiguration.getLineNumber();
 
         Node n = root;
         if (root == null) {
-            n = root = new TextNode(0, 0);
+            n = root = new TextNode("", 0, 0);
         }
 
         IfNode last;
@@ -264,7 +269,7 @@ public class TextCompiler {
                              */
                             stack.push(n = markTextNode(n).next =
                                     new IfNode(start, name, template, captureOrbInternal(), start,
-                                            expressionCompiler));
+                                            createNodeHelper()));
 
                             n.setTerminus(new TerminalNode());
 
@@ -276,7 +281,7 @@ public class TextCompiler {
 
                                 last.demarcate(last.getTerminus(), template);
                                 last.next = n = new IfNode(start, name, template,
-                                        captureOrbInternal(), start, expressionCompiler);
+                                        captureOrbInternal(), start, createNodeHelper());
 
                                 stack.push(n);
                             }
@@ -285,7 +290,7 @@ public class TextCompiler {
                         case Opcodes.FOREACH:
                             stack.push(
                                     n = markTextNode(n).next = new ForEachNode(start, name,
-                                            template, captureOrbInternal(), start, expressionCompiler));
+                                            template, captureOrbInternal(), start, createNodeHelper()));
 
                             n.setTerminus(new TerminalNode());
 
@@ -294,7 +299,7 @@ public class TextCompiler {
                         case Opcodes.CODE:
                             n = markTextNode(n)
                                     .next = new CodeNode(start, name, template,
-                                            captureOrbInternal(), start = cursor + 1, expressionCompiler);
+                                            captureOrbInternal(), start = cursor + 1, createNodeHelper());
                             break;
 
                         case Opcodes.COMMENT:
@@ -326,7 +331,7 @@ public class TextCompiler {
                             if (name.length() == 0) {
                                 n = markTextNode(n).next =
                                         new ExpressionNode(start, name, template, captureOrbInternal(),
-                                                start = cursor + 1, expressionCompiler);
+                                                start = cursor + 1, createNodeHelper());
                             }
                             else if (customNodes != null && customNodes.containsKey(name)) {
                                 Class<? extends Node> customNode = customNodes.get(name);
@@ -391,7 +396,7 @@ public class TextCompiler {
         }
 
         if (start < template.length) {
-            n = n.next = new TextNode(start, template.length);
+            n = n.next = new TextNode(String.valueOf(template, start, template.length - start), start, template.length);
         }
         n.next = new EndNode();
 
@@ -404,7 +409,7 @@ public class TextCompiler {
 
         if (n != null && n.getLength() == template.length - 1) {
             if (n instanceof ExpressionNode) {
-                return new TerminalExpressionNode(n, expressionCompiler);
+                return new TerminalExpressionNode(n, createNodeHelper());
             }
             else {
                 return n;
@@ -412,6 +417,11 @@ public class TextCompiler {
         }
 
         return root;
+    }
+
+    private CompilableNodeHelper createNodeHelper() {
+        return new CompilableNodeHelper(parserConfiguration,
+                expressionCompiler, line);
     }
 
     private boolean isNext(final char c) {
@@ -422,7 +432,8 @@ public class TextCompiler {
         int s = (n.getEnd() > lastTextRangeEnding ? n.getEnd() : lastTextRangeEnding);
 
         if (s < start) {
-            return n.next = new TextNode(s, lastTextRangeEnding = start - 1);
+            lastTextRangeEnding = start - 1;
+            return n.next = new TextNode(String.valueOf(template, s, lastTextRangeEnding - s), s, lastTextRangeEnding);
         }
         return n;
     }

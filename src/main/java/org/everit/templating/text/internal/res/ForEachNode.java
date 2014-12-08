@@ -8,17 +8,17 @@ import org.everit.expression.CompileException;
 import org.everit.expression.CompiledExpression;
 import org.everit.templating.text.internal.CompilableNodeHelper;
 import org.everit.templating.text.internal.CompiledTemplateImpl;
-import org.everit.templating.text.internal.InheritantMap;
 import org.everit.templating.text.internal.TemplateWriter;
 import org.everit.templating.text.internal.TextTemplateUtil;
 import org.everit.templating.text.internal.UniversalIterable;
+import org.everit.templating.util.InheritantMap;
 
 public class ForEachNode extends Node {
     private CompiledExpression[] ce;
 
     private CompiledExpression cSepExpr;
 
-    private CompilableNodeHelper helper;
+    private final CompilableNodeHelper helper;
 
     private String[] item;
 

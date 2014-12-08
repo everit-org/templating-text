@@ -12,6 +12,7 @@ import org.everit.templating.text.internal.res.CommentNode;
 import org.everit.templating.text.internal.res.EndNode;
 import org.everit.templating.text.internal.res.ExpressionNode;
 import org.everit.templating.text.internal.res.ForEachNode;
+import org.everit.templating.text.internal.res.FragmentNode;
 import org.everit.templating.text.internal.res.IfNode;
 import org.everit.templating.text.internal.res.Node;
 import org.everit.templating.text.internal.res.Opcodes;
@@ -28,6 +29,7 @@ public class TextCompiler {
         OPCODES.put("elseif", Opcodes.ELSE);
         OPCODES.put("end", Opcodes.END);
         OPCODES.put("foreach", Opcodes.FOREACH);
+        OPCODES.put("fragment", Opcodes.FRAGMENT);
 
         OPCODES.put("comment", Opcodes.COMMENT);
         OPCODES.put("code", Opcodes.CODE);
@@ -174,6 +176,8 @@ public class TextCompiler {
 
     private final ExpressionCompiler expressionCompiler;
 
+    private final Map<String, Node> fragments = new HashMap<String, Node>();
+
     private int lastTextRangeEnding;
 
     private final int length;
@@ -228,7 +232,7 @@ public class TextCompiler {
     }
 
     public CompiledTemplateImpl compile() {
-        return new CompiledTemplateImpl(compileFrom(null, new ExecutionStack()));
+        return new CompiledTemplateImpl(compileFrom(null, new ExecutionStack()), fragments);
     }
 
     public Node compileFrom(Node root, final ExecutionStack stack) {
@@ -309,6 +313,12 @@ public class TextCompiler {
 
                             break;
 
+                        case Opcodes.FRAGMENT:
+                            stack.push(n = markTextNode(n).next = new FragmentNode(start, name, template,
+                                    captureOrbInternal(), start = cursor + 1, createNodeHelper(), fragments));
+                            n.setTerminus(new TerminalNode());
+
+                            break;
                         case Opcodes.END:
                             n = markTextNode(n);
 

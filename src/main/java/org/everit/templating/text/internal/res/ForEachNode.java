@@ -7,11 +7,10 @@ import java.util.Map;
 import org.everit.expression.CompileException;
 import org.everit.expression.CompiledExpression;
 import org.everit.templating.text.internal.CompilableNodeHelper;
-import org.everit.templating.text.internal.CompiledTemplateImpl;
-import org.everit.templating.text.internal.TemplateWriter;
 import org.everit.templating.text.internal.TextTemplateUtil;
-import org.everit.templating.text.internal.UniversalIterable;
 import org.everit.templating.util.InheritantMap;
+import org.everit.templating.util.TemplateWriter;
+import org.everit.templating.util.UniversalIterable;
 
 public class ForEachNode extends Node {
     private CompiledExpression[] ce;
@@ -102,8 +101,7 @@ public class ForEachNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
-            final Map<String, Object> vars) {
+    public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
 
         Iterator<?>[] iters = new Iterator[item.length];
 
@@ -127,7 +125,7 @@ public class ForEachNode extends Node {
                 }
             }
             if (iterate != 0) {
-                nestedNode.eval(runtime, appender, ctx, localVars);
+                nestedNode.eval(appender, localVars);
 
                 if (sepExpr != null) {
                     for (Iterator<?> it : iters) {
@@ -142,7 +140,7 @@ public class ForEachNode extends Node {
             }
         }
 
-        return next != null ? next.eval(runtime, appender, ctx, vars) : null;
+        return next != null ? next.eval(appender, vars) : null;
     }
 
     public Node getNestedNode() {

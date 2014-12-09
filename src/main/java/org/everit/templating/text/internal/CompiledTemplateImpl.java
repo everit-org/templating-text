@@ -7,6 +7,7 @@ import org.everit.templating.CompiledTemplate;
 import org.everit.templating.TemplateConstants;
 import org.everit.templating.text.internal.res.Node;
 import org.everit.templating.util.InheritantMap;
+import org.everit.templating.util.TemplateWriter;
 
 /**
  * This is the root of the template runtime, and contains various utility methods for executing templates.
@@ -28,25 +29,24 @@ public class CompiledTemplateImpl implements CompiledTemplate {
     }
 
     @Override
-    public void render(final Writer writer, final Map<String, Object> vars, final String bookmark) {
+    public void render(final Writer writer, final Map<String, Object> vars, final String fragmentId) {
         TemplateWriter templateWriter = new TemplateWriter(writer);
 
         InheritantMap<String, Object> scopedVars = new InheritantMap<String, Object>(vars, false);
         Node node;
-        String fragmentId;
+        String tmpFragmentId;
 
-        if (bookmark == null || TemplateConstants.FRAGMENT_ROOT.equals(bookmark)) {
+        if (fragmentId == null || TemplateConstants.FRAGMENT_ROOT.equals(fragmentId)) {
             node = rootNode;
-            fragmentId = TemplateConstants.FRAGMENT_ROOT;
+            tmpFragmentId = TemplateConstants.FRAGMENT_ROOT;
         } else {
-            fragmentId = bookmark;
-            node = fragments.get(bookmark);
+            tmpFragmentId = fragmentId;
+            node = fragments.get(fragmentId);
         }
-        TemplateContextImpl templateContext = new TemplateContextImpl(fragmentId, fragments, this, scopedVars,
-                templateWriter);
+        TemplateContextImpl templateContext = new TemplateContextImpl(tmpFragmentId, fragments, scopedVars);
 
         scopedVars.putWithoutChecks(TemplateConstants.VAR_TEMPLATE_CONTEXT, templateContext);
-        node.eval(this, templateWriter, null, vars);
+        node.eval(templateWriter, scopedVars);
 
     }
 

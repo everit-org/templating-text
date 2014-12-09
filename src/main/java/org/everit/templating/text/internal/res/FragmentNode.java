@@ -4,16 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
-import org.everit.templating.CompiledTemplate;
 import org.everit.templating.text.internal.CompilableNodeHelper;
-import org.everit.templating.text.internal.CompiledTemplateImpl;
-import org.everit.templating.text.internal.TemplateWriter;
 import org.everit.templating.util.InheritantMap;
+import org.everit.templating.util.TemplateWriter;
 
 public class FragmentNode extends Node {
     private final String fragmentName;
     private final Map<String, Node> fragments;
-    private CompiledTemplate fragmentTemplate;
     private Node nestedNode;
 
     public FragmentNode(final int begin, final String name, final char[] template, final int start,
@@ -58,10 +55,9 @@ public class FragmentNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
-            final Map<String, Object> vars) {
+    public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
 
-        nestedNode.eval(runtime, appender, null, new InheritantMap<String, Object>(vars, true));
-        return next != null ? next.eval(runtime, appender, ctx, vars) : null;
+        nestedNode.eval(appender, new InheritantMap<String, Object>(vars, true));
+        return next != null ? next.eval(appender, vars) : null;
     }
 }

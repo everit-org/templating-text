@@ -1,5 +1,7 @@
 package org.everit.templating.text.internal;
 
+import org.everit.expression.CompileException;
+
 public class TextTemplateUtil {
 
     /**
@@ -92,18 +94,16 @@ public class TextTemplateUtil {
             }
         }
 
-        throw new RuntimeException();
-        // TODO throw nice exception.
-        // switch (type) {
-        // case '[':
-        // throw new AbstractExpressionException("unbalanced braces [ ... ]", chars, start);
-        // case '{':
-        // throw new AbstractExpressionException("unbalanced braces { ... }", chars, start);
-        // case '(':
-        // throw new AbstractExpressionException("unbalanced braces ( ... )", chars, start);
-        // default:
-        // throw new AbstractExpressionException("unterminated string literal", chars, start);
-        // }
+        switch (type) {
+        case '[':
+            throw new CompileException("unbalanced braces [ ... ]", chars, start);
+        case '{':
+            throw new CompileException("unbalanced braces { ... }", chars, start);
+        case '(':
+            throw new CompileException("unbalanced braces ( ... )", chars, start);
+        default:
+            throw new CompileException("unterminated string literal", chars, start);
+        }
     }
 
     public static int captureStringLiteral(final char type, final char[] expr, int cursor, final int end) {
@@ -114,9 +114,7 @@ public class TextTemplateUtil {
         }
 
         if (cursor >= end || expr[cursor] != type) {
-            // TODO throw nice exception
-            throw new RuntimeException();
-            // throw new AbstractExpressionException("unterminated string literal", expr, cursor);
+            throw new CompileException("unterminated string literal", expr, cursor);
         }
 
         return cursor;

@@ -4,9 +4,8 @@ import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
 import org.everit.templating.text.internal.CompilableNodeHelper;
-import org.everit.templating.text.internal.CompiledTemplateImpl;
-import org.everit.templating.text.internal.TemplateWriter;
 import org.everit.templating.text.internal.TextTemplateUtil;
+import org.everit.templating.util.TemplateWriter;
 
 public class IfNode extends Node {
 
@@ -41,12 +40,11 @@ public class IfNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
-            final Map<String, Object> vars) {
+    public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
         if (evalCE(vars)) {
-            return trueNode.eval(runtime, appender, ctx, vars);
+            return trueNode.eval(appender, vars);
         }
-        return next != null ? next.eval(runtime, appender, ctx, vars) : null;
+        return next != null ? next.eval(appender, vars) : null;
     }
 
     private boolean evalCE(final Map<String, Object> vars) {

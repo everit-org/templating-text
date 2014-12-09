@@ -2,8 +2,7 @@ package org.everit.templating.text.internal.res;
 
 import java.util.Map;
 
-import org.everit.templating.text.internal.CompiledTemplateImpl;
-import org.everit.templating.text.internal.TemplateWriter;
+import org.everit.templating.util.TemplateWriter;
 
 public class TextNode extends Node {
     private final String text;
@@ -24,13 +23,12 @@ public class TextNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledTemplateImpl runtime, final TemplateWriter appender, final Object ctx,
-            final Map<String, Object> vars) {
+    public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
         int len = end - begin;
         if (len != 0) {
             appender.append(text);
         }
-        return next != null ? next.eval(runtime, appender, ctx, vars) : null;
+        return next != null ? next.eval(appender, vars) : null;
     }
 
     @Override

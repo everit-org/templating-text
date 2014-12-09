@@ -2,8 +2,7 @@ package org.everit.templating.text.internal.res;
 
 import java.util.Map;
 
-import org.everit.templating.text.internal.CompiledTemplateImpl;
-import org.everit.templating.text.internal.TemplateWriter;
+import org.everit.templating.util.TemplateWriter;
 
 public class EndNode extends Node {
     @Override
@@ -12,8 +11,7 @@ public class EndNode extends Node {
     }
 
     @Override
-    public Object eval(final CompiledTemplateImpl runtie, final TemplateWriter appender, final Object ctx,
-            final Map<String, Object> vars) {
+    public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
         return appender.toString();
     }
 

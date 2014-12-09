@@ -377,21 +377,15 @@ public class TextCompiler {
                 cursor++;
             }
         } catch (RuntimeException e) {
-            AbstractExpressionException ce = new CompileException(e.getMessage(), template, cursor, e);
-            ce.setExpr(template);
-
-            if (e instanceof AbstractExpressionException) {
-                AbstractExpressionException ce2 = (AbstractExpressionException) e;
-                if (ce2.getCursor() != -1) {
-                    ce.setCursor(ce2.getCursor());
-                    if (ce2.getColumn() == -1) {
-                        ce.setColumn(ce.getCursor() - colStart);
-                    } else {
-                        ce.setColumn(ce2.getColumn());
-                    }
-                }
+            if (e instanceof CompileException) {
+                throw e;
             }
+
+            AbstractExpressionException ce = new CompileException("Error during template compilation", template,
+                    cursor, e);
+
             ce.setLineNumber(line);
+            ce.setColumn(cursor - colStart);
 
             throw ce;
         }

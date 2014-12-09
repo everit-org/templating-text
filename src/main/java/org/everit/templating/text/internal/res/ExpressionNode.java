@@ -17,7 +17,7 @@ public class ExpressionNode extends Node {
         this.cStart = start;
         this.cEnd = end - 1;
         this.end = end;
-        ce = helper.getExpressionCompiler().compile(String.valueOf(template, cStart, cEnd - cStart),
+        ce = helper.getExpressionCompiler().compile(template, cStart, cEnd - cStart,
                 helper.generateParserConfiguration(cStart + 1));
     }
 

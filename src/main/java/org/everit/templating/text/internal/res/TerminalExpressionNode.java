@@ -13,7 +13,7 @@ public class TerminalExpressionNode extends Node {
         this.begin = node.begin;
         this.name = node.name;
         ce = helper.getExpressionCompiler().compile(
-                String.valueOf(node.contents, node.cStart, node.cEnd - node.cStart),
+                node.contents, node.cStart, node.cEnd - node.cStart,
                 helper.generateParserConfiguration(cStart + 1));
     }
 

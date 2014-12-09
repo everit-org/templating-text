@@ -20,7 +20,7 @@ public class TemplateContextImpl extends AbstractTemplateContext {
     protected String renderFragmentInternal(final String fragmentId, final Map<String, Object> vars) {
         Node fragmentNode = fragments.get(fragmentId);
         if (fragmentNode == null) {
-            // TODO throw nice excepion
+            throw new IllegalArgumentException("Unkown fragment: " + fragmentId);
         }
 
         StringWriter stringWriter = new StringWriter();

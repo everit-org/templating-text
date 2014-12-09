@@ -17,17 +17,17 @@ public class TextTemplatingTest {
         ExpressionCompiler expressionCompiler = new MvelExpressionCompiler();
         TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
 
-        CompiledTemplate compiledTemplate = compiler.compile(
-                "hahaha@{'hehe'}@fragment{'frag1'}@code{a=1}@{a}dd@end{}xx@{template_ctx.renderFragment('frag1')}",
-                new ParserConfiguration(this.getClass().getClassLoader()));
+        CompiledTemplate compiledTemplate = compiler
+                .compile(
+                        "ha@{{}haha@{'hehe'}@fragment{'frag1'}@code{a=1}@{a}dd@end{}xx@{template_ctx.renderFragment('frag1')}",
+                        new ParserConfiguration(this.getClass().getClassLoader()));
 
         OutputStreamWriter writer = new OutputStreamWriter(System.out);
         compiledTemplate.render(writer, new HashMap<String, Object>());
         try {
             writer.flush();
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
     }

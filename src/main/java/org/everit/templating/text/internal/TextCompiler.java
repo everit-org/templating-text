@@ -323,7 +323,7 @@ public class TextCompiler {
                             n = markTextNode(n);
 
                             Node end = (Node) stack.pop();
-                            Node terminal = end.getTerminus();
+                            TerminalNode terminal = end.getTerminus();
 
                             terminal.setCStart(captureOrbInternal());
                             terminal.setEnd((lastTextRangeEnding = start) - 1);

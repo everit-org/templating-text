@@ -13,7 +13,7 @@ public abstract class Node {
     protected int end;
     protected String name;
     public Node next;
-    protected Node terminus;
+    protected TerminalNode terminus;
 
     public Node() {
     }
@@ -80,7 +80,7 @@ public abstract class Node {
         return next;
     }
 
-    public Node getTerminus() {
+    public TerminalNode getTerminus() {
         return terminus;
     }
 
@@ -116,7 +116,7 @@ public abstract class Node {
         return this.next = next;
     }
 
-    public void setTerminus(final Node terminus) {
+    public void setTerminus(final TerminalNode terminus) {
         this.terminus = terminus;
     }
 }

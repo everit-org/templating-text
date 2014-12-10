@@ -17,10 +17,14 @@ public class TextTemplatingTest {
         ExpressionCompiler expressionCompiler = new MvelExpressionCompiler();
         TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
 
+        ParserConfiguration parserConfiguration = new ParserConfiguration(this.getClass().getClassLoader());
+        parserConfiguration.setColumn(10);
+        parserConfiguration.setLineNumber(100);
+
         CompiledTemplate compiledTemplate = compiler
                 .compile(
-                        "\n\n  @foreach{index : ({1, 3, 2})}@{index}. haha@end{aa + ', \n'}",
-                        new ParserConfiguration(this.getClass().getClassLoader()));
+                        "@foreach{index : ({1, 3, 2})}@{index}. haha@end{aa + ', '}",
+                        parserConfiguration);
 
         OutputStreamWriter writer = new OutputStreamWriter(System.out);
         compiledTemplate.render(writer, new HashMap<String, Object>());

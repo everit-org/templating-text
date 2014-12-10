@@ -1,6 +1,7 @@
 package org.everit.templating.text.internal;
 
 import org.everit.expression.CompileException;
+import org.everit.templating.text.internal.res.ContentRange;
 
 public class TextTemplateUtil {
 
@@ -120,9 +121,9 @@ public class TextTemplateUtil {
         return cursor;
     }
 
-    public static String createStringTrimmed(final char[] s, int start, int length) {
+    public static ContentRange createStringTrimmed(final char[] s, int start, int length) {
         if ((length = start + length) > s.length) {
-            return new String(s);
+            return new ContentRange(start, length);
         }
         while (start != length && s[start] < '\u0020' + 1) {
             start++;
@@ -130,7 +131,7 @@ public class TextTemplateUtil {
         while (length != start && s[length - 1] < '\u0020' + 1) {
             length--;
         }
-        return new String(s, start, length - start);
+        return new ContentRange(start, length - start);
     }
 
     public static boolean isWhitespace(final char c) {

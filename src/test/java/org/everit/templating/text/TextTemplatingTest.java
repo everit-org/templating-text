@@ -19,7 +19,7 @@ public class TextTemplatingTest {
 
         CompiledTemplate compiledTemplate = compiler
                 .compile(
-                        "ha@{{}haha@{'hehe'}@fragment{'frag1'}@code{a=1}@{a}dd@end{}xx@{template_ctx.renderFragment('frag1')}",
+                        "\n\n  @foreach{index : ({1, 3, 2})}@{index}. haha@end{aa + ', \n'}",
                         new ParserConfiguration(this.getClass().getClassLoader()));
 
         OutputStreamWriter writer = new OutputStreamWriter(System.out);

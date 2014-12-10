@@ -13,13 +13,14 @@ import org.everit.templating.util.TemplateWriter;
 import org.everit.templating.util.UniversalIterable;
 
 public class ForEachNode extends Node {
+
     private CompiledExpression[] ce;
 
     private CompiledExpression cSepExpr;
 
     private final CompilableNodeHelper helper;
 
-    private String[] item;
+    private ContentRange[] item;
 
     public Node nestedNode;
 
@@ -33,8 +34,8 @@ public class ForEachNode extends Node {
     }
 
     private void configure() {
-        ArrayList<String> items = new ArrayList<String>();
-        ArrayList<String> expr = new ArrayList<String>();
+        ArrayList<ContentRange> items = new ArrayList<ContentRange>();
+        ArrayList<ContentRange> expr = new ArrayList<ContentRange>();
 
         int start = cStart;
         for (int i = start; i < cEnd; i++) {
@@ -68,17 +69,16 @@ public class ForEachNode extends Node {
             expr.add(TextTemplateUtil.createStringTrimmed(contents, start, cEnd - start));
         }
 
-        item = new String[items.size()];
+        item = new ContentRange[items.size()];
         int i = 0;
-        for (String s : items) {
+        for (ContentRange s : items) {
             item[i++] = s;
         }
 
-        String[] expression;
-        ce = new CompiledExpression[(expression = new String[expr.size()]).length];
+        ce = new CompiledExpression[(new String[expr.size()]).length];
         i = 0;
-        for (String s : expr) {
-            ce[i] = helper.getExpressionCompiler().compile(expression[i++] = s,
+        for (ContentRange s : expr) {
+            ce[i] = helper.getExpressionCompiler().compile(contents, s.cStart, s.length,
                     helper.generateParserConfiguration(cStart + 1));
         }
     }
@@ -93,8 +93,8 @@ public class ForEachNode extends Node {
             sepExpr = null;
         }
         else {
-            cSepExpr = helper.getExpressionCompiler().compile(String.valueOf(sepExpr),
-                    helper.generateParserConfiguration(cStart + 1));
+            cSepExpr = helper.getExpressionCompiler().compile(contents, terminatingnode.cStart,
+                    terminatingnode.end - terminatingnode.cStart, helper.generateParserConfiguration(cStart + 1));
         }
 
         return false;
@@ -118,10 +118,10 @@ public class ForEachNode extends Node {
             for (int i = 0; i < iters.length; i++) {
                 if (!iters[i].hasNext()) {
                     iterate--;
-                    localVars.put(item[i], "");
+                    localVars.put(String.valueOf(contents, item[i].cStart, item[i].length), "");
                 }
                 else {
-                    localVars.put(item[i], iters[i].next());
+                    localVars.put(String.valueOf(contents, item[i].cStart, item[i].length), iters[i].next());
                 }
             }
             if (iterate != 0) {

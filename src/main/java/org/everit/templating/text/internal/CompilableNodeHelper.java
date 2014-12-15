@@ -33,11 +33,19 @@ public class CompilableNodeHelper {
         return expressionCompiler.compile(expression, parserConfiguration);
     }
 
+    public ExpressionCompiler getExpressionCompiler() {
+        return expressionCompiler;
+    }
+
     public int getLine() {
         return line;
     }
 
     public int getLineStart() {
         return lineStart;
+    }
+
+    public ParserConfiguration getOriginalConfig() {
+        return originalConfig;
     }
 }

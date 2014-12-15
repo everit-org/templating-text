@@ -18,12 +18,12 @@ public class TextTemplatingTest {
         TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
 
         ParserConfiguration parserConfiguration = new ParserConfiguration(this.getClass().getClassLoader());
-        parserConfiguration.setColumn(10);
+        parserConfiguration.setColumn(1);
         parserConfiguration.setLineNumber(100);
 
         CompiledTemplate compiledTemplate = compiler
                 .compile(
-                        "@{'a'.charAt(0)@foreach{index : ({1, 3aa, 2})}@{index}. haha@end{', '}",
+                        "@{'a'.charAt(0)}@foreach{index : ({1, 3, 2})}@{index}. haha@end{aa + ', '}",
                         parserConfiguration);
 
         OutputStreamWriter writer = new OutputStreamWriter(System.out);

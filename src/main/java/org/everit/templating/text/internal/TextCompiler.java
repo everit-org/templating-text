@@ -327,7 +327,10 @@ public class TextCompiler {
                         Node end = (Node) stack.pop();
                         TerminalNode terminal = end.getTerminus();
 
+                        terminal.setLine(line);
+                        int tmpColStart = colStart;
                         terminal.setCStart(captureOrbInternal());
+                        terminal.setColumn(terminal.getCStart() - tmpColStart + 1);
                         terminal.setEnd((lastTextRangeEnding = start) - 1);
                         terminal.calculateContents(template);
 

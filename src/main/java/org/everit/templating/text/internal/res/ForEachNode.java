@@ -92,7 +92,12 @@ public class ForEachNode extends Node {
             sepExpr = null;
         }
         else {
-            cSepExpr = helper.compileExpression(contents, terminatingnode.cStart,
+            TerminalNode terminalNode = (TerminalNode) terminatingnode;
+            CompilableNodeHelper sepHelper = new CompilableNodeHelper(helper.getOriginalConfig(),
+                    helper.getExpressionCompiler(), terminalNode.getLine(), terminalNode.cStart
+                            - terminalNode.getColumn() + 1);
+
+            cSepExpr = sepHelper.compileExpression(contents, terminatingnode.cStart,
                     terminatingnode.end - terminatingnode.cStart);
         }
 

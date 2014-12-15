@@ -12,9 +12,7 @@ public class TerminalExpressionNode extends Node {
     public TerminalExpressionNode(final Node node, final CompilableNodeHelper helper) {
         this.begin = node.begin;
         this.name = node.name;
-        ce = helper.getExpressionCompiler().compile(
-                node.contents, node.cStart, node.cEnd - node.cStart,
-                helper.generateParserConfiguration(cStart + 1));
+        ce = helper.compileExpression(node.contents, node.cStart, node.cEnd - node.cStart);
     }
 
     @Override

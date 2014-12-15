@@ -1,6 +1,6 @@
 package org.everit.templating.text.internal;
 
-import org.everit.expression.CompileException;
+import org.everit.templating.text.CompileException;
 import org.everit.templating.text.internal.res.ContentRange;
 
 public class TextTemplateUtil {

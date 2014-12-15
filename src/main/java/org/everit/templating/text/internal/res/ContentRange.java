@@ -5,7 +5,6 @@ public class ContentRange {
     public int length;
 
     public ContentRange(final int cStart, final int length) {
-        super();
         this.cStart = cStart;
         this.length = length;
     }

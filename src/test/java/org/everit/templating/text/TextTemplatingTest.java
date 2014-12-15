@@ -23,7 +23,7 @@ public class TextTemplatingTest {
 
         CompiledTemplate compiledTemplate = compiler
                 .compile(
-                        "@{'a'.charAt(-1)}@foreach{index : ({1, 3, 2})}@{index}. haha@end{aa + ', '}",
+                        "@{'a'.charAt(0)@foreach{index : ({1, 3aa, 2})}@{index}. haha@end{', '}",
                         parserConfiguration);
 
         OutputStreamWriter writer = new OutputStreamWriter(System.out);

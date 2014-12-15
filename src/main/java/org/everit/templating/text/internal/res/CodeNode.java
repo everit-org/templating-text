@@ -21,8 +21,7 @@ public class CodeNode extends Node {
         this.cEnd = end - 1;
         this.end = end;
 
-        ce = helper.getExpressionCompiler().compile(template, cStart, cEnd - cStart,
-                helper.generateParserConfiguration(cStart + 1));
+        ce = helper.compileExpression(template, start, cEnd - start);
     }
 
     @Override

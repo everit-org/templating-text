@@ -26,9 +26,7 @@ public class IfNode extends Node {
             cEnd--;
         }
         if (cStart != cEnd) {
-            ce = helper.getExpressionCompiler()
-                    .compile(template, cStart, cEnd - start,
-                            helper.generateParserConfiguration(cStart + 1));
+            ce = helper.compileExpression(template, cStart, cEnd - start);
         }
     }
 

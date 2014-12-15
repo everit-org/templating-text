@@ -3,10 +3,9 @@ package org.everit.templating.text.internal;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.everit.expression.AbstractExpressionException;
-import org.everit.expression.CompileException;
 import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.ParserConfiguration;
+import org.everit.templating.text.CompileException;
 import org.everit.templating.text.internal.res.CodeNode;
 import org.everit.templating.text.internal.res.CommentNode;
 import org.everit.templating.text.internal.res.EndNode;
@@ -35,7 +34,57 @@ public class TextCompiler {
         OPCODES.put("code", Opcodes.CODE);
     }
 
-    private static int balancedCaptureWithLineAccounting(final char[] chars, int start, final int end, final char type,
+    public static boolean isIdentifierPart(final int c) {
+        return ((c > 96 && c < 123)
+                || (c > 64 && c < 91) || (c > 47 && c < 58) || (c == '_') || (c == '$')
+                || Character.isJavaIdentifierPart(c));
+    }
+
+    private static boolean isWhitespace(final char c) {
+        return c < '\u0020' + 1;
+    }
+
+    private static char[] subset(final char[] array, final int start, final int length) {
+
+        char[] newArray = new char[length];
+
+        for (int i = 0; i < newArray.length; i++) {
+            newArray[i] = array[i + start];
+        }
+
+        return newArray;
+    }
+
+    private int colStart;
+
+    private int cursor;
+
+    private Map<String, Class<? extends Node>> customNodes;
+
+    private final ExpressionCompiler expressionCompiler;
+
+    private final Map<String, Node> fragments = new HashMap<String, Node>();
+
+    private int lastTextRangeEnding;
+
+    private final int length;
+
+    private int line;
+
+    private final ParserConfiguration parserConfiguration;
+
+    private int start;
+
+    private char[] template;
+
+    public TextCompiler(final String template, final ExpressionCompiler expressionCompiler,
+            final ParserConfiguration parserConfiguration) {
+        this.expressionCompiler = expressionCompiler;
+        this.parserConfiguration = parserConfiguration;
+        this.length = (this.template = template.toCharArray()).length;
+    }
+
+    private int balancedCaptureWithLineAccounting(final char[] chars, int start, final int end, final char type,
             final ParserContext pCtx) {
         int depth = 1;
         int st = start;
@@ -133,7 +182,40 @@ public class TextCompiler {
         }
     }
 
-    private static int captureStringLiteral(final char type, final char[] expr, int cursor, final int end) {
+    private char[] capture() {
+        char[] newChar = new char[cursor - start];
+        for (int i = 0; i < newChar.length; i++) {
+            newChar[i] = template[i + start];
+        }
+        return newChar;
+    }
+
+    private int captureOrbInternal() {
+        ParserContext pCtx = new ParserContext();
+        cursor = balancedCaptureWithLineAccounting(template, start = cursor, length, '{', pCtx);
+        line += pCtx.getLineCount();
+        int ret = start + 1;
+        start = cursor + 1;
+        return ret;
+    }
+
+    private int captureOrbToken() {
+        int newStart = ++cursor;
+        while ((cursor != length) && isIdentifierPart(template[cursor])) {
+            cursor++;
+        }
+        if (cursor != length) {
+            if (template[cursor] == '{') {
+                return newStart;
+            } else if (template[cursor] == '\n') {
+                line++;
+                colStart = cursor + 1;
+            }
+        }
+        return -1;
+    }
+
+    private int captureStringLiteral(final char type, final char[] expr, int cursor, final int end) {
         while (++cursor < end && expr[cursor] != type) {
             if (expr[cursor] == '\\') {
                 cursor++;
@@ -147,96 +229,13 @@ public class TextCompiler {
         return cursor;
     }
 
-    public static boolean isIdentifierPart(final int c) {
-        return ((c > 96 && c < 123)
-                || (c > 64 && c < 91) || (c > 47 && c < 58) || (c == '_') || (c == '$')
-                || Character.isJavaIdentifierPart(c));
-    }
-
-    private static boolean isWhitespace(final char c) {
-        return c < '\u0020' + 1;
-    }
-
-    private static char[] subset(final char[] array, final int start, final int length) {
-
-        char[] newArray = new char[length];
-
-        for (int i = 0; i < newArray.length; i++) {
-            newArray[i] = array[i + start];
-        }
-
-        return newArray;
-    }
-
-    private int colStart;
-
-    private int cursor;
-
-    private Map<String, Class<? extends Node>> customNodes;
-
-    private final ExpressionCompiler expressionCompiler;
-
-    private final Map<String, Node> fragments = new HashMap<String, Node>();
-
-    private int lastTextRangeEnding;
-
-    private final int length;
-
-    private int line;
-
-    private final ParserConfiguration parserConfiguration;
-
-    private int start;
-
-    private char[] template;
-
-    public TextCompiler(final String template, final ExpressionCompiler expressionCompiler,
-            final ParserConfiguration parserConfiguration) {
-        this.expressionCompiler = expressionCompiler;
-        this.parserConfiguration = parserConfiguration;
-        this.length = (this.template = template.toCharArray()).length;
-    }
-
-    private char[] capture() {
-        char[] newChar = new char[cursor - start];
-        for (int i = 0; i < newChar.length; i++) {
-            newChar[i] = template[i + start];
-        }
-        return newChar;
-    }
-
-    private int captureOrbInternal() {
-        try {
-            ParserContext pCtx = new ParserContext();
-            cursor = balancedCaptureWithLineAccounting(template, start = cursor, length, '{', pCtx);
-            line += pCtx.getLineCount();
-            int ret = start + 1;
-            start = cursor + 1;
-            return ret;
-        } catch (AbstractExpressionException e) {
-            e.setLineNumber(line);
-            e.setColumn((cursor - colStart) + 1);
-            throw e;
-        }
-    }
-
-    private int captureOrbToken() {
-        int newStart = ++cursor;
-        while ((cursor != length) && isIdentifierPart(template[cursor])) {
-            cursor++;
-        }
-        if (cursor != length && template[cursor] == '{') {
-            return newStart;
-        }
-        return -1;
-    }
-
     public CompiledTemplateImpl compile() {
         return new CompiledTemplateImpl(compileFrom(null, new ExecutionStack()), fragments);
     }
 
     public Node compileFrom(Node root, final ExecutionStack stack) {
         line = parserConfiguration.getLineNumber();
+        colStart = 0 - parserConfiguration.getColumn() + 1;
 
         Node n = root;
         if (root == null) {
@@ -248,153 +247,123 @@ public class TextCompiler {
         String name;
         int x;
 
-        try {
-            while (cursor < length) {
-                switch (template[cursor]) {
-                case '\n':
-                    line++;
-                    colStart = cursor + 1;
-                    break;
-                case '@':
-                case '$':
-                    if (isNext(template[cursor])) {
-                        start = ++cursor;
-                        (n = markTextNode(n)).setEnd(n.getEnd() + 1);
-                        start = lastTextRangeEnding = ++cursor;
+        while (cursor < length) {
+            switch (template[cursor]) {
+            case '\n':
+                line++;
+                colStart = cursor + 1;
+                break;
+            case '@':
+            case '$':
+                if (isNext(template[cursor])) {
+                    start = ++cursor;
+                    (n = markTextNode(n)).setEnd(n.getEnd() + 1);
+                    start = lastTextRangeEnding = ++cursor;
 
-                        continue;
-                    }
-                    if ((x = captureOrbToken()) != -1) {
-                        start = x;
-                        switch ((opcode = OPCODES.get(name = new String(capture()))) == null ? 0 : opcode) {
-                        case Opcodes.IF:
-                            /**
-                             * Capture any residual text node, and push the if statement on the nesting stack.
-                             */
-                            stack.push(n = markTextNode(n).next =
-                                    new IfNode(start, name, template, captureOrbInternal(), start,
-                                            createNodeHelper()));
+                    continue;
+                }
+                if ((x = captureOrbToken()) != -1) {
+                    start = x;
+                    switch ((opcode = OPCODES.get(name = new String(capture()))) == null ? 0 : opcode) {
+                    case Opcodes.IF:
+                        /**
+                         * Capture any residual text node, and push the if statement on the nesting stack.
+                         */
+                        stack.push(n = markTextNode(n).next =
+                                new IfNode(start, name, template, captureOrbInternal(), start,
+                                        createNodeHelper()));
 
-                            n.setTerminus(new TerminalNode());
+                        n.setTerminus(new TerminalNode());
 
-                            break;
+                        break;
 
-                        case Opcodes.ELSE:
-                            if (!stack.isEmpty() && stack.peek() instanceof IfNode) {
-                                markTextNode(n).next = (last = (IfNode) stack.pop()).getTerminus();
+                    case Opcodes.ELSE:
+                        if (!stack.isEmpty() && stack.peek() instanceof IfNode) {
+                            markTextNode(n).next = (last = (IfNode) stack.pop()).getTerminus();
 
-                                last.demarcate(last.getTerminus(), template);
-                                last.next = n = new IfNode(start, name, template,
-                                        captureOrbInternal(), start, createNodeHelper());
+                            last.demarcate(last.getTerminus(), template);
+                            last.next = n = new IfNode(start, name, template,
+                                    captureOrbInternal(), start, createNodeHelper());
 
-                                stack.push(n);
-                            }
-                            break;
+                            stack.push(n);
+                        }
+                        break;
 
-                        case Opcodes.FOREACH:
+                    case Opcodes.FOREACH:
+                        try {
                             stack.push(
                                     n = markTextNode(n).next = new ForEachNode(start, name,
                                             template, captureOrbInternal(), start, createNodeHelper()));
+                        } catch (org.everit.templating.text.CompileException e) {
 
-                            n.setTerminus(new TerminalNode());
+                        }
 
-                            break;
+                        n.setTerminus(new TerminalNode());
 
-                        case Opcodes.CODE:
-                            n = markTextNode(n)
-                                    .next = new CodeNode(start, name, template,
-                                            captureOrbInternal(), start = cursor + 1, createNodeHelper());
-                            break;
+                        break;
 
-                        case Opcodes.COMMENT:
-                            n = markTextNode(n)
-                                    .next = new CommentNode(start, name, template, captureOrbInternal(),
-                                            start = cursor + 1);
+                    case Opcodes.CODE:
+                        n = markTextNode(n)
+                                .next = new CodeNode(start, name, template,
+                                        captureOrbInternal(), start = cursor + 1, createNodeHelper());
+                        break;
 
-                            break;
+                    case Opcodes.COMMENT:
+                        n = markTextNode(n)
+                                .next = new CommentNode(start, name, template, captureOrbInternal(),
+                                        start = cursor + 1);
 
-                        case Opcodes.FRAGMENT:
-                            stack.push(n = markTextNode(n).next = new FragmentNode(start, name, template,
-                                    captureOrbInternal(), start = cursor + 1, createNodeHelper(), fragments));
-                            n.setTerminus(new TerminalNode());
+                        break;
 
-                            break;
-                        case Opcodes.END:
-                            n = markTextNode(n);
+                    case Opcodes.FRAGMENT:
+                        stack.push(n = markTextNode(n).next = new FragmentNode(start, name, template,
+                                captureOrbInternal(), start = cursor + 1, createNodeHelper(), fragments));
+                        n.setTerminus(new TerminalNode());
 
-                            Node end = (Node) stack.pop();
-                            TerminalNode terminal = end.getTerminus();
+                        break;
+                    case Opcodes.END:
+                        n = markTextNode(n);
 
-                            terminal.setCStart(captureOrbInternal());
-                            terminal.setEnd((lastTextRangeEnding = start) - 1);
-                            terminal.calculateContents(template);
+                        Node end = (Node) stack.pop();
+                        TerminalNode terminal = end.getTerminus();
 
-                            if (end.demarcate(terminal, template)) {
-                                n = n.next = terminal;
-                            } else {
-                                n = terminal;
-                            }
+                        terminal.setCStart(captureOrbInternal());
+                        terminal.setEnd((lastTextRangeEnding = start) - 1);
+                        terminal.calculateContents(template);
 
-                            break;
+                        if (end.demarcate(terminal, template)) {
+                            n = n.next = terminal;
+                        } else {
+                            n = terminal;
+                        }
 
-                        default:
-                            if (name.length() == 0) {
-                                n = markTextNode(n).next =
-                                        new ExpressionNode(start, name, template, captureOrbInternal(),
-                                                start = cursor + 1, createNodeHelper());
-                            }
-                            else if (customNodes != null && customNodes.containsKey(name)) {
-                                Class<? extends Node> customNode = customNodes.get(name);
+                        break;
 
-                                try {
-                                    (n = markTextNode(n).next = (customNode.newInstance())).setBegin(start);
-                                    n.setName(name);
-                                    n.setCStart(captureOrbInternal());
-                                    n.setCEnd(start = cursor + 1);
-                                    n.setEnd(n.getCEnd());
+                    default:
+                        if (name.length() == 0) {
+                            n = markTextNode(n).next =
+                                    new ExpressionNode(start, name, template, captureOrbInternal(),
+                                            start = cursor + 1, createNodeHelper());
+                        } else {
+                            CompileException e = new CompileException("unknown token type: " + name, template, start);
+                            e.setLineNumber(line);
+                            e.setColumn(start - colStart + 1);
+                            throw e;
 
-                                    n.setContents(subset(template, n.getCStart(), n.getCEnd() - n.getCStart() - 1));
-
-                                    if (n.isOpenNode()) {
-                                        stack.push(n);
-                                    }
-                                } catch (InstantiationException e) {
-                                    throw new RuntimeException("unable to instantiate custom node class: "
-                                            + customNode.getName());
-                                } catch (IllegalAccessException e) {
-                                    throw new RuntimeException("unable to instantiate custom node class: "
-                                            + customNode.getName());
-                                }
-                            }
-                            else {
-                                throw new RuntimeException("unknown token type: " + name);
-                            }
                         }
                     }
-
-                    break;
                 }
-                cursor++;
+
+                break;
             }
-        } catch (RuntimeException e) {
-            if (e instanceof CompileException) {
-                throw e;
-            }
-
-            AbstractExpressionException ce = new CompileException("Error during template compilation", template,
-                    cursor, e);
-
-            ce.setLineNumber(line);
-            ce.setColumn(cursor - colStart);
-
-            throw ce;
+            cursor++;
         }
 
         if (!stack.isEmpty()) {
-            AbstractExpressionException ce = new CompileException("unclosed @"
+            CompileException ce = new CompileException("unclosed @"
                     + ((Node) stack.peek()).getName()
                     + "{} block. expected @end{}", template, cursor);
-            ce.setColumn(cursor - colStart);
+            ce.setColumn(cursor - colStart + 1);
             ce.setLineNumber(line);
             throw ce;
         }
@@ -425,7 +394,7 @@ public class TextCompiler {
 
     private CompilableNodeHelper createNodeHelper() {
         return new CompilableNodeHelper(parserConfiguration,
-                expressionCompiler, line);
+                expressionCompiler, line, colStart);
     }
 
     private boolean isNext(final char c) {

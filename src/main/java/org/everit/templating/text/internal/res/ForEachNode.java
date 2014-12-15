@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.everit.expression.CompileException;
 import org.everit.expression.CompiledExpression;
+import org.everit.templating.text.CompileException;
 import org.everit.templating.text.internal.CompilableNodeHelper;
 import org.everit.templating.text.internal.TextTemplateUtil;
 import org.everit.templating.util.InheritantMap;
@@ -78,8 +78,7 @@ public class ForEachNode extends Node {
         ce = new CompiledExpression[(new String[expr.size()]).length];
         i = 0;
         for (ContentRange s : expr) {
-            ce[i] = helper.getExpressionCompiler().compile(contents, s.cStart, s.length,
-                    helper.generateParserConfiguration(cStart + 1));
+            ce[i] = helper.compileExpression(contents, s.cStart, s.length);
         }
     }
 
@@ -93,8 +92,8 @@ public class ForEachNode extends Node {
             sepExpr = null;
         }
         else {
-            cSepExpr = helper.getExpressionCompiler().compile(contents, terminatingnode.cStart,
-                    terminatingnode.end - terminatingnode.cStart, helper.generateParserConfiguration(cStart + 1));
+            cSepExpr = helper.compileExpression(contents, terminatingnode.cStart,
+                    terminatingnode.end - terminatingnode.cStart);
         }
 
         return false;

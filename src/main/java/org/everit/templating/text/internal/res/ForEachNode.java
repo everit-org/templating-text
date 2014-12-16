@@ -1,3 +1,19 @@
+/**
+ * This file is part of Everit - Templating Text.
+ *
+ * Everit - Templating Text is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Everit - Templating Text is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Everit - Templating Text.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.everit.templating.text.internal.res;
 
 import java.util.ArrayList;
@@ -64,7 +80,7 @@ public class ForEachNode extends Node {
 
         if (start < cEnd) {
             if (expr.size() != (items.size() - 1)) {
-                throw new CompileException("expected character ':' in foreach tag", contents, cEnd);
+                throw new CompileException("expected character ':' in foreach tag", contents, cStart);
             }
             expr.add(TextTemplateUtil.createStringTrimmed(contents, start, cEnd - start));
         }
@@ -78,7 +94,7 @@ public class ForEachNode extends Node {
         ce = new CompiledExpression[(new String[expr.size()]).length];
         i = 0;
         for (ContentRange s : expr) {
-            ce[i] = helper.compileExpression(contents, s.cStart, s.length);
+            ce[i++] = helper.compileExpression(contents, s.cStart, s.length);
         }
     }
 

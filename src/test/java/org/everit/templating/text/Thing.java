@@ -14,17 +14,31 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Everit - Templating Text.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.everit.templating.text.internal.res;
+package org.everit.templating.text;
 
-public interface Opcodes {
-    public static int FRAGMENT = 54;
-    public static int CODE = 53;
-    public static int COMMENT = 52;
+public class Thing {
+    private MyEnum myEnum;
 
-    public static int ELSE = 2;
-    public static int END = 10;
-    public static int FOREACH = 3;
+    private String name;
 
-    public static int IF = 1;
-    public static int STOP = 70;
+    public Thing(final String name) {
+        this.name = name;
+    }
+
+    public MyEnum getMyEnum() {
+        return myEnum;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setMyEnum(final MyEnum myEnum) {
+        this.myEnum = myEnum;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
 }

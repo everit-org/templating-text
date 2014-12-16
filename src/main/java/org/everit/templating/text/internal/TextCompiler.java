@@ -1,3 +1,19 @@
+/**
+ * This file is part of Everit - Templating Text.
+ *
+ * Everit - Templating Text is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Everit - Templating Text is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Everit - Templating Text.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.everit.templating.text.internal;
 
 import java.util.HashMap;
@@ -239,7 +255,7 @@ public class TextCompiler {
 
         Node n = root;
         if (root == null) {
-            n = root = new TextNode("", 0, 0);
+            n = root = new TextNode(template, 0, 0);
         }
 
         IfNode last;
@@ -284,19 +300,16 @@ public class TextCompiler {
                             last.demarcate(last.getTerminus(), template);
                             last.next = n = new IfNode(start, name, template,
                                     captureOrbInternal(), start, createNodeHelper());
+                            n.setTerminus(last.getTerminus());
 
                             stack.push(n);
                         }
                         break;
 
                     case Opcodes.FOREACH:
-                        try {
-                            stack.push(
-                                    n = markTextNode(n).next = new ForEachNode(start, name,
-                                            template, captureOrbInternal(), start, createNodeHelper()));
-                        } catch (org.everit.templating.text.CompileException e) {
-
-                        }
+                        stack.push(
+                                n = markTextNode(n).next = new ForEachNode(start, name,
+                                        template, captureOrbInternal(), start, createNodeHelper()));
 
                         n.setTerminus(new TerminalNode());
 
@@ -372,7 +385,7 @@ public class TextCompiler {
         }
 
         if (start < template.length) {
-            n = n.next = new TextNode(String.valueOf(template, start, template.length - start), start, template.length);
+            n = n.next = new TextNode(template, start, template.length);
         }
         n.next = new EndNode();
 
@@ -409,7 +422,7 @@ public class TextCompiler {
 
         if (s < start) {
             lastTextRangeEnding = start - 1;
-            return n.next = new TextNode(String.valueOf(template, s, lastTextRangeEnding - s), s, lastTextRangeEnding);
+            return n.next = new TextNode(template, s, lastTextRangeEnding);
         }
         return n;
     }

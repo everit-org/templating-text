@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.ParserConfiguration;
-import org.everit.templating.text.CompileException;
 import org.everit.templating.text.internal.res.CodeNode;
 import org.everit.templating.text.internal.res.CommentNode;
 import org.everit.templating.text.internal.res.EndNode;
@@ -34,6 +33,7 @@ import org.everit.templating.text.internal.res.Opcodes;
 import org.everit.templating.text.internal.res.TerminalExpressionNode;
 import org.everit.templating.text.internal.res.TerminalNode;
 import org.everit.templating.text.internal.res.TextNode;
+import org.everit.templating.util.CompileException;
 
 public class TextCompiler {
     private static final Map<String, Integer> OPCODES = new HashMap<String, Integer>();
@@ -58,17 +58,6 @@ public class TextCompiler {
 
     private static boolean isWhitespace(final char c) {
         return c < '\u0020' + 1;
-    }
-
-    private static char[] subset(final char[] array, final int start, final int length) {
-
-        char[] newArray = new char[length];
-
-        for (int i = 0; i < newArray.length; i++) {
-            newArray[i] = array[i + start];
-        }
-
-        return newArray;
     }
 
     private int colStart;
@@ -250,8 +239,8 @@ public class TextCompiler {
     }
 
     public Node compileFrom(Node root, final ExecutionStack stack) {
-        line = parserConfiguration.getLineNumber();
-        colStart = 0 - parserConfiguration.getColumn() + 1;
+        line = parserConfiguration.getStartRow();
+        colStart = 0 - parserConfiguration.getStartColumn() + 1;
 
         Node n = root;
         if (root == null) {

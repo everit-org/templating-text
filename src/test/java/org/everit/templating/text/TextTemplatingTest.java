@@ -271,8 +271,8 @@ public class TextTemplatingTest {
 
     private ParserConfiguration createParserConfiguration(final int lineNumber, final int column) {
         ParserConfiguration parserConfiguration = new ParserConfiguration(this.getClass().getClassLoader());
-        parserConfiguration.setColumn(column);
-        parserConfiguration.setLineNumber(lineNumber);
+        parserConfiguration.setStartColumn(column);
+        parserConfiguration.setStartRow(lineNumber);
         return parserConfiguration;
     }
 

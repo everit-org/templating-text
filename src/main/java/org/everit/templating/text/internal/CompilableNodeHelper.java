@@ -41,8 +41,8 @@ public class CompilableNodeHelper {
     public CompiledExpression compileExpression(final char[] template, final int start, final int length) {
         ParserConfiguration parserConfiguration = new ParserConfiguration(originalConfig);
 
-        parserConfiguration.setLineNumber(line);
-        parserConfiguration.setColumn(start - lineStart + 1);
+        parserConfiguration.setStartRow(line);
+        parserConfiguration.setStartColumn(start - lineStart + 1);
 
         String expression = String.valueOf(template, start, length);
 

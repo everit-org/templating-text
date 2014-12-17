@@ -21,9 +21,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
-import org.everit.templating.text.CompileException;
 import org.everit.templating.text.internal.CompilableNodeHelper;
 import org.everit.templating.text.internal.TextTemplateUtil;
+import org.everit.templating.util.CompileException;
 import org.everit.templating.util.InheritantMap;
 import org.everit.templating.util.TemplateWriter;
 import org.everit.templating.util.UniversalIterable;

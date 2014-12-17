@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.everit.expression.CompiledExpression;
-import org.everit.templating.text.CompileException;
 import org.everit.templating.text.internal.CompilableNodeHelper;
+import org.everit.templating.util.CompileException;
 import org.everit.templating.util.InheritantMap;
 import org.everit.templating.util.TemplateWriter;
 

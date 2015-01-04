@@ -31,8 +31,14 @@ public class TextTemplateCompiler implements TemplateCompiler {
     }
 
     @Override
-    public CompiledTemplate compile(final String template, final ParserConfiguration parserConfiguration) {
-        return new TextCompiler(template, expressionCompiler, parserConfiguration).compile();
+    public CompiledTemplate compile(final char[] document, final int templateStart, final int templateLength,
+            final ParserConfiguration parserConfiguration) {
+        return new TextCompiler(document, templateStart, templateLength, expressionCompiler, parserConfiguration)
+                .compile();
     }
 
+    @Override
+    public CompiledTemplate compile(final String template, final ParserConfiguration parserConfiguration) {
+        return this.compile(template.toCharArray(), 0, template.length(), parserConfiguration);
+    }
 }

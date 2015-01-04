@@ -64,7 +64,7 @@ public class TextCompiler {
 
     private int cursor;
 
-    private Map<String, Class<? extends Node>> customNodes;
+    private final int end;
 
     private final ExpressionCompiler expressionCompiler;
 
@@ -72,21 +72,22 @@ public class TextCompiler {
 
     private int lastTextRangeEnding;
 
-    private final int length;
-
     private int line;
 
     private final ParserConfiguration parserConfiguration;
 
     private int start;
 
-    private char[] template;
+    private final char[] template;
 
-    public TextCompiler(final String template, final ExpressionCompiler expressionCompiler,
+    public TextCompiler(final char[] document, final int templateStart, final int templateLength,
+            final ExpressionCompiler expressionCompiler,
             final ParserConfiguration parserConfiguration) {
         this.expressionCompiler = expressionCompiler;
         this.parserConfiguration = parserConfiguration;
-        this.length = (this.template = template.toCharArray()).length;
+        this.template = document;
+        this.end = templateStart + templateLength;
+        this.cursor = templateStart;
     }
 
     private int balancedCaptureWithLineAccounting(final char[] chars, int start, final int end, final char type,
@@ -197,7 +198,7 @@ public class TextCompiler {
 
     private int captureOrbInternal() {
         ParserContext pCtx = new ParserContext();
-        cursor = balancedCaptureWithLineAccounting(template, start = cursor, length, '{', pCtx);
+        cursor = balancedCaptureWithLineAccounting(template, start = cursor, end, '{', pCtx);
         line += pCtx.getLineCount();
         int ret = start + 1;
         start = cursor + 1;
@@ -206,10 +207,10 @@ public class TextCompiler {
 
     private int captureOrbToken() {
         int newStart = ++cursor;
-        while ((cursor != length) && isIdentifierPart(template[cursor])) {
+        while ((cursor != end) && isIdentifierPart(template[cursor])) {
             cursor++;
         }
-        if (cursor != length) {
+        if (cursor != end) {
             if (template[cursor] == '{') {
                 return newStart;
             } else if (template[cursor] == '\n') {
@@ -240,11 +241,11 @@ public class TextCompiler {
 
     public Node compileFrom(Node root, final ExecutionStack stack) {
         line = parserConfiguration.getStartRow();
-        colStart = 0 - parserConfiguration.getStartColumn() + 1;
+        colStart = cursor - parserConfiguration.getStartColumn() + 1;
 
         Node n = root;
         if (root == null) {
-            n = root = new TextNode(template, 0, 0);
+            n = root = new TextNode(template, cursor, cursor);
         }
 
         IfNode last;
@@ -252,7 +253,7 @@ public class TextCompiler {
         String name;
         int x;
 
-        while (cursor < length) {
+        while (cursor < end) {
             switch (template[cursor]) {
             case '\n':
                 line++;
@@ -373,8 +374,8 @@ public class TextCompiler {
             throw ce;
         }
 
-        if (start < template.length) {
-            n = n.next = new TextNode(template, start, template.length);
+        if (start < end) {
+            n = n.next = new TextNode(template, start, end);
         }
         n.next = new EndNode();
 
@@ -385,7 +386,7 @@ public class TextCompiler {
             }
         } while ((n = n.getNext()) != null);
 
-        if (n != null && n.getLength() == template.length - 1) {
+        if (n != null && n.getLength() == end - 1) {
             if (n instanceof ExpressionNode) {
                 return new TerminalExpressionNode(n, createNodeHelper());
             }
@@ -403,7 +404,7 @@ public class TextCompiler {
     }
 
     private boolean isNext(final char c) {
-        return cursor != length && template[cursor + 1] == c;
+        return cursor != end && template[cursor + 1] == c;
     }
 
     private Node markTextNode(final Node n) {

@@ -29,6 +29,7 @@ import org.everit.templating.CompiledTemplate;
 import org.everit.templating.util.InheritantMap;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mvel2.PropertyAccessException;
 
 public class TextTemplatingTest {
 
@@ -259,6 +260,53 @@ public class TextTemplatingTest {
         Assert.assertEquals("foo@foo.com", test("foo@@@{'foo.com'}"));
     }
 
+    @Test
+    public void _100_testPassCharArray() {
+        CompiledTemplate compiledTemplate = compileTemplate(" \nHello @{'foo'}! \n", 2, 15);
+
+        StringWriter sw = new StringWriter();
+        compiledTemplate.render(sw, new HashMap<String, Object>());
+        Assert.assertEquals("Hello foo!", sw.toString());
+    }
+
+    @Test
+    public void _101_testPassCharArrayWithError() {
+        CompiledTemplate compiledTemplate = compileTemplate(" \nHello @{xx + 'foo'}! \n", 2, 20);
+
+        StringWriter sw = new StringWriter();
+        try {
+            compiledTemplate.render(sw, new HashMap<String, Object>());
+            Assert.fail("Exception should have been thrown");
+        } catch (PropertyAccessException e) {
+            Assert.assertEquals(19, e.getColumn());
+            Assert.assertEquals(11, e.getLineNumber());
+        }
+    }
+
+    @Test
+    public void _102_testFragmentCall() {
+        String template = "Hello @fragment{'myTemplate'}@{name}@end{}! \n";
+        CompiledTemplate compiledTemplate = compileTemplate(template, 0, template.length());
+
+        StringWriter sw = new StringWriter();
+
+        HashMap<String, Object> vars = new HashMap<String, Object>();
+        vars.put("name", "John");
+        compiledTemplate.render(sw, vars, "myTemplate");
+        Assert.assertEquals("John", sw.toString());
+
+    }
+
+    @Test
+    public void _103_testInlineFragmentCall() {
+        Assert.assertEquals(
+                "Hello John!",
+                test("Hello @{template_ctx.renderFragment('nameFragment', ['name' : 'John'])}!"
+                        + "@fragment{'nameFragment'}"
+                        + "@if{template_ctx.fragmentId == 'nameFragment'}@{name}@end{}"
+                        + "@end{}"));
+    }
+
     private CompiledTemplate compileExpression(final String template) {
         ExpressionCompiler expressionCompiler = new MvelExpressionCompiler();
         TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
@@ -266,6 +314,17 @@ public class TextTemplatingTest {
         ParserConfiguration parserConfiguration = createParserConfiguration(1, 1);
 
         CompiledTemplate compiledTemplate = compiler.compile(template, parserConfiguration);
+        return compiledTemplate;
+    }
+
+    private CompiledTemplate compileTemplate(final String template, final int templateStart, final int templateLength) {
+        ExpressionCompiler expressionCompiler = new MvelExpressionCompiler();
+        TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
+
+        ParserConfiguration parserConfiguration = createParserConfiguration(11, 11);
+
+        CompiledTemplate compiledTemplate = compiler.compile(template.toCharArray(), templateStart, templateLength,
+                parserConfiguration);
         return compiledTemplate;
     }
 

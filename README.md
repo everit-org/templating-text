@@ -6,10 +6,10 @@ templating-text
 Templating implementation to generate simple text output. The origin of the
 solution is the source of MVEL. The source is modified in the way that
 
- - The solution implements [templating-api][1]
- - Any expression language that is bridged with Everit [expression-api][2]
+ - the solution implements [templating-api][1]
+ - any expression language that is bridged with Everit [expression-api][2]
    can be used within the templates
- - Have a small binary
+ - have a very small binary (<50k without the expression language)
 
 ## Usage
 
@@ -171,7 +171,8 @@ specific fragment id:
 
 ### Download
 
-The binaries are available at Maven Central.
+The binaries with all of its dependencies are available at [Maven Central][3].
 
 [1]: https://github.com/everit-org/templating-api
 [2]: https://github.com/everit-org/expression-api
+[3]: http://search.maven.org/#artifactdetails%7Corg.everit.templating%7Corg.everit.templating.text%7C1.0.0%7Cbundle

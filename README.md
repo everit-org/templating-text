@@ -1,4 +1,4 @@
 templating-text
 ===============
 
-Documentation: http://wwww.everit.org/templating-text
+Documentation: http://www.everit.org/templating-text

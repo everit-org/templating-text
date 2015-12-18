@@ -178,13 +178,13 @@ public class TextCompiler {
 
         switch (type) {
         case '[':
-            throw new CompileException("unbalanced braces [ ... ]", chars, st);
+            throw new CompileException(getTemplateFileName() + "unbalanced braces [ ... ]", chars, st);
         case '{':
-            throw new CompileException("unbalanced braces { ... }", chars, st);
+            throw new CompileException(getTemplateFileName() + "unbalanced braces { ... }", chars, st);
         case '(':
-            throw new CompileException("unbalanced braces ( ... )", chars, st);
+            throw new CompileException(getTemplateFileName() + "unbalanced braces ( ... )", chars, st);
         default:
-            throw new CompileException("unterminated string literal", chars, st);
+            throw new CompileException(getTemplateFileName() + "unterminated string literal", chars, st);
         }
     }
 
@@ -229,7 +229,7 @@ public class TextCompiler {
         }
 
         if (cursor >= end || expr[cursor] != type) {
-            throw new CompileException("unterminated string literal", expr, cursor);
+            throw new CompileException(getTemplateFileName() + "unterminated string literal", expr, cursor);
         }
 
         return cursor;
@@ -299,7 +299,8 @@ public class TextCompiler {
                     case Opcodes.FOREACH:
                         stack.push(
                                 n = markTextNode(n).next = new ForEachNode(start, name,
-                                        template, captureOrbInternal(), start, createNodeHelper()));
+                                        template, captureOrbInternal(), start, createNodeHelper(),
+                                        getTemplateFileName()));
 
                         n.setTerminus(new TerminalNode());
 
@@ -320,7 +321,8 @@ public class TextCompiler {
 
                     case Opcodes.FRAGMENT:
                         stack.push(n = markTextNode(n).next = new FragmentNode(start, name, template,
-                                captureOrbInternal(), start = cursor + 1, createNodeHelper(), fragments));
+                                captureOrbInternal(), start = cursor + 1, createNodeHelper(), fragments,
+                                getTemplateFileName()));
                         n.setTerminus(new TerminalNode());
 
                         break;
@@ -351,7 +353,7 @@ public class TextCompiler {
                                     new ExpressionNode(start, name, template, captureOrbInternal(),
                                             start = cursor + 1, createNodeHelper());
                         } else {
-                            CompileException e = new CompileException("unknown token type: " + name, template, start);
+                            CompileException e = new CompileException(getTemplateFileName() + "unknown token type: " + name, template, start);
                             e.setLineNumber(line);
                             e.setColumn(start - colStart + 1);
                             throw e;
@@ -366,7 +368,7 @@ public class TextCompiler {
         }
 
         if (!stack.isEmpty()) {
-            CompileException ce = new CompileException("unclosed @"
+            CompileException ce = new CompileException(getTemplateFileName() + "unclosed @"
                     + ((Node) stack.peek()).getName()
                     + "{} block. expected @end{}", template, cursor);
             ce.setColumn(cursor - colStart + 1);
@@ -401,6 +403,10 @@ public class TextCompiler {
     private CompilableNodeHelper createNodeHelper() {
         return new CompilableNodeHelper(parserConfiguration,
                 expressionCompiler, line, colStart);
+    }
+
+    private String getTemplateFileName(){
+      return "[Name: " + parserConfiguration.getName() + "] ";
     }
 
     private boolean isNext(final char c) {

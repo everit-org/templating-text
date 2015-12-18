@@ -42,10 +42,13 @@ public class ForEachNode extends Node {
 
     private char[] sepExpr;
 
+    private final String templateFileName;
+
     public ForEachNode(final int begin, final String name, final char[] template, final int start,
-            final int end, final CompilableNodeHelper helper) {
+            final int end, final CompilableNodeHelper helper, final String templateFileName) {
         super(begin, name, template, start, end);
         this.helper = helper;
+        this.templateFileName = templateFileName;
         configure();
     }
 
@@ -61,7 +64,7 @@ public class ForEachNode extends Node {
             case '{':
             case '"':
             case '\'':
-                i = TextTemplateUtil.balancedCapture(contents, i, contents[i]);
+                i = TextTemplateUtil.balancedCapture(contents, i, contents[i], templateFileName);
                 break;
             case ':':
                 items.add(TextTemplateUtil.createStringTrimmed(contents, start, i - start));
@@ -69,7 +72,7 @@ public class ForEachNode extends Node {
                 break;
             case ',':
                 if (expr.size() != (items.size() - 1)) {
-                    throw new CompileException("unexpected character ',' in foreach tag", contents, cStart
+                    throw new CompileException(templateFileName + "unexpected character ',' in foreach tag", contents, cStart
                             + i);
                 }
                 expr.add(TextTemplateUtil.createStringTrimmed(contents, start, i - start));
@@ -80,7 +83,7 @@ public class ForEachNode extends Node {
 
         if (start < cEnd) {
             if (expr.size() != (items.size() - 1)) {
-                throw new CompileException("expected character ':' in foreach tag", contents, cStart);
+                throw new CompileException(templateFileName + "expected character ':' in foreach tag", contents, cStart);
             }
             expr.add(TextTemplateUtil.createStringTrimmed(contents, start, cEnd - start));
         }

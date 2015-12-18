@@ -39,13 +39,17 @@ public class TextTemplateUtil {
      *            -
      * @param type
      *            -
+     * @param templateFileName
+     *            -
      * @return -
      */
-    public static int balancedCapture(final char[] chars, final int start, final char type) {
-        return balancedCapture(chars, start, chars.length, type);
+    public static int balancedCapture(final char[] chars, final int start, final char type, 
+        final String templateFileName) {
+        return balancedCapture(chars, start, chars.length, type, templateFileName);
     }
 
-    public static int balancedCapture(final char[] chars, int start, final int end, final char type) {
+    public static int balancedCapture(final char[] chars, int start, final int end, final char type,
+        final String templateFileName) {
         int depth = 1;
         char term = type;
         switch (type) {
@@ -100,7 +104,7 @@ public class TextTemplateUtil {
                     return start;
                 }
                 if (chars[start] == '\'' || chars[start] == '"') {
-                    start = captureStringLiteral(chars[start], chars, start, end);
+                    start = captureStringLiteral(chars[start], chars, start, end, templateFileName);
                 }
                 else if (chars[start] == type) {
                     depth++;
@@ -113,17 +117,18 @@ public class TextTemplateUtil {
 
         switch (type) {
         case '[':
-            throw new CompileException("unbalanced braces [ ... ]", chars, start);
+            throw new CompileException(templateFileName + "unbalanced braces [ ... ]", chars, start);
         case '{':
-            throw new CompileException("unbalanced braces { ... }", chars, start);
+            throw new CompileException(templateFileName + "unbalanced braces { ... }", chars, start);
         case '(':
-            throw new CompileException("unbalanced braces ( ... )", chars, start);
+            throw new CompileException(templateFileName + "unbalanced braces ( ... )", chars, start);
         default:
-            throw new CompileException("unterminated string literal", chars, start);
+            throw new CompileException(templateFileName + "unterminated string literal", chars, start);
         }
     }
 
-    public static int captureStringLiteral(final char type, final char[] expr, int cursor, final int end) {
+    public static int captureStringLiteral(final char type, final char[] expr, int cursor, final int end,
+        final String templateFileName) {
         while (++cursor < end && expr[cursor] != type) {
             if (expr[cursor] == '\\') {
                 cursor++;
@@ -131,7 +136,7 @@ public class TextTemplateUtil {
         }
 
         if (cursor >= end || expr[cursor] != type) {
-            throw new CompileException("unterminated string literal", expr, cursor);
+            throw new CompileException(templateFileName + "unterminated string literal", expr, cursor);
         }
 
         return cursor;

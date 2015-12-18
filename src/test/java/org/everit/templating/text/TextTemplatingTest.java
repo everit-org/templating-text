@@ -22,14 +22,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.jexl2.JexlException;
 import org.everit.expression.ExpressionCompiler;
 import org.everit.expression.ParserConfiguration;
-import org.everit.expression.mvel.MvelExpressionCompiler;
+import org.everit.expression.jexl.JexlExpressionCompiler;
 import org.everit.templating.CompiledTemplate;
 import org.everit.templating.util.InheritantMap;
 import org.junit.Assert;
 import org.junit.Test;
-import org.mvel2.PropertyAccessException;
 
 public class TextTemplatingTest {
 
@@ -149,7 +149,7 @@ public class TextTemplatingTest {
 
     @Test
     public void _011_testComplexTemplate() {
-        String s = "@foreach{item : arrayList}@if{item[0] == 'J'}@{item}@end{}@end{}";
+        String s = "@foreach{item : arrayList}@if{item.startsWith('J')}@{item}@end{}@end{}";
         Assert.assertEquals("JaneJohn", test(s));
     }
 
@@ -219,11 +219,6 @@ public class TextTemplatingTest {
     }
 
     @Test
-    public void _022_testChor() {
-        Assert.assertEquals("cat", test("@{a or b or c}"));
-    }
-
-    @Test
     public void _023_testTemplating() {
         Assert.assertEquals("dogDOGGIE133.5", test("@{foo.bar.name}DOGGIE@{hour*2.225+1-1}"));
     }
@@ -277,9 +272,8 @@ public class TextTemplatingTest {
         try {
             compiledTemplate.render(sw, new HashMap<String, Object>());
             Assert.fail("Exception should have been thrown");
-        } catch (PropertyAccessException e) {
-            Assert.assertEquals(19, e.getColumn());
-            Assert.assertEquals(11, e.getLineNumber());
+        } catch (JexlException e) {
+          Assert.assertEquals("@11:19![0,2]: 'xx + 'foo';' undefined variable xx", e.getMessage());
         }
     }
 
@@ -301,14 +295,14 @@ public class TextTemplatingTest {
     public void _103_testInlineFragmentCall() {
         Assert.assertEquals(
                 "Hello John!",
-                test("Hello @{template_ctx.renderFragment('nameFragment', ['name' : 'John'])}!"
+                test("Hello @{template_ctx.renderFragment('nameFragment', {'name' : 'John'})}!"
                         + "@fragment{'nameFragment'}"
                         + "@if{template_ctx.fragmentId == 'nameFragment'}@{name}@end{}"
                         + "@end{}"));
     }
 
     private CompiledTemplate compileExpression(final String template) {
-        ExpressionCompiler expressionCompiler = new MvelExpressionCompiler();
+        ExpressionCompiler expressionCompiler = new JexlExpressionCompiler();
         TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
 
         ParserConfiguration parserConfiguration = createParserConfiguration(1, 1);
@@ -316,9 +310,9 @@ public class TextTemplatingTest {
         CompiledTemplate compiledTemplate = compiler.compile(template, parserConfiguration);
         return compiledTemplate;
     }
-
+ 
     private CompiledTemplate compileTemplate(final String template, final int templateStart, final int templateLength) {
-        ExpressionCompiler expressionCompiler = new MvelExpressionCompiler();
+        ExpressionCompiler expressionCompiler = new JexlExpressionCompiler();
         TextTemplateCompiler compiler = new TextTemplateCompiler(expressionCompiler);
 
         ParserConfiguration parserConfiguration = createParserConfiguration(11, 11);

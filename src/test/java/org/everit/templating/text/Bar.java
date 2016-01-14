@@ -1,18 +1,17 @@
-/**
- * This file is part of Everit - Templating Text.
+/*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.biz)
  *
- * Everit - Templating Text is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Everit - Templating Text is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Everit - Templating Text.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.everit.templating.text;
 
@@ -20,76 +19,76 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bar {
-    public static int staticMethod() {
-        return 1;
-    }
+  public static int staticMethod() {
+    return 1;
+  }
 
-    private int age = 14;
-    private String assignTest = "";
-    private Integer[] intarray = new Integer[1];
-    private String name = "dog";
-    private List<Integer> testList = new ArrayList<Integer>();
+  private int age = 14;
+  private String assignTest = "";
+  private Integer[] intarray = new Integer[1];
+  private String name = "dog";
+  private List<Integer> testList = new ArrayList<Integer>();
 
-    private boolean woof = true;
+  private boolean woof = true;
 
-    @Override
-    public boolean equals(final Object o) {
-        return o instanceof Bar;
-    }
+  @Override
+  public boolean equals(final Object o) {
+    return o instanceof Bar;
+  }
 
-    public int getAge() {
-        return age;
-    }
+  public int getAge() {
+    return age;
+  }
 
-    public String getAssignTest() {
-        return assignTest;
-    }
+  public String getAssignTest() {
+    return assignTest;
+  }
 
-    public Integer[] getIntarray() {
-        return intarray;
-    }
+  public Integer[] getIntarray() {
+    return intarray;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public List<Integer> getTestList() {
-        return testList;
-    }
+  public List<Integer> getTestList() {
+    return testList;
+  }
 
-    public String happy() {
-        return "happyBar";
-    }
+  public String happy() {
+    return "happyBar";
+  }
 
-    public boolean isFoo(final Object obj) {
-        return obj instanceof Foo;
-    }
+  public boolean isFoo(final Object obj) {
+    return obj instanceof Foo;
+  }
 
-    public boolean isWoof() {
-        return woof;
-    }
+  public boolean isWoof() {
+    return woof;
+  }
 
-    public void setAge(final int age) {
-        this.age = age;
-    }
+  public void setAge(final int age) {
+    this.age = age;
+  }
 
-    public void setAssignTest(final String assignTest) {
-        this.assignTest = assignTest;
-    }
+  public void setAssignTest(final String assignTest) {
+    this.assignTest = assignTest;
+  }
 
-    public void setIntarray(final Integer[] intarray) {
-        this.intarray = intarray;
-    }
+  public void setIntarray(final Integer[] intarray) {
+    this.intarray = intarray;
+  }
 
-    public void setName(final String name) {
-        this.name = name;
-    }
+  public void setName(final String name) {
+    this.name = name;
+  }
 
-    public void setTestList(final List<Integer> testList) {
-        this.testList = testList;
-    }
+  public void setTestList(final List<Integer> testList) {
+    this.testList = testList;
+  }
 
-    public void setWoof(final boolean woof) {
-        this.woof = woof;
-    }
+  public void setWoof(final boolean woof) {
+    this.woof = woof;
+  }
 }

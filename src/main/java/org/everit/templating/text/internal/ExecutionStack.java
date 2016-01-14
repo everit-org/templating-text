@@ -1,94 +1,92 @@
-/**
- * This file is part of Everit - Templating Text.
+/*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.biz)
  *
- * Everit - Templating Text is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Everit - Templating Text is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Everit - Templating Text.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.everit.templating.text.internal;
 
 public class ExecutionStack {
 
-    private StackElement element;
+  private StackElement element;
 
-    private int size = 0;
+  private int size = 0;
 
-    public int deepCount() {
-        int count = 0;
+  public int deepCount() {
+    int count = 0;
 
-        if (element == null) {
-            return 0;
-        }
-        else {
-            count++;
-        }
-
-        StackElement element = this.element;
-        while ((element = element.next) != null) {
-            count++;
-        }
-        return count;
+    if (element == null) {
+      return 0;
+    } else {
+      count++;
     }
 
-    public boolean isEmpty() {
-        return size == 0;
+    StackElement element = this.element;
+    while ((element = element.next) != null) {
+      count++;
+    }
+    return count;
+  }
+
+  public boolean isEmpty() {
+    return size == 0;
+  }
+
+  public Object peek() {
+    if (size == 0) {
+      return null;
+    } else {
+      return element.value;
+    }
+  }
+
+  public Object pop() {
+    if (size == 0) {
+      return null;
+    }
+    try {
+      size--;
+      return element.value;
+    } finally {
+      element = element.next;
+      assert size == deepCount();
+    }
+  }
+
+  public void push(final Object o) {
+    size++;
+    element = new StackElement(element, o);
+    assert size == deepCount();
+
+  }
+
+  @Override
+  public String toString() {
+    StackElement el = element;
+
+    if (element == null) {
+      return "<EMPTY>";
     }
 
-    public Object peek() {
-        if (size == 0) {
-            return null;
-        } else {
-            return element.value;
-        }
-    }
+    StringBuilder appender = new StringBuilder().append("[");
+    do {
+      appender.append(String.valueOf(el.value));
+      if (el.next != null) {
+        appender.append(", ");
+      }
+    } while ((el = el.next) != null);
 
-    public Object pop() {
-        if (size == 0) {
-            return null;
-        }
-        try {
-            size--;
-            return element.value;
-        } finally {
-            element = element.next;
-            assert size == deepCount();
-        }
-    }
+    appender.append("]");
 
-    public void push(final Object o) {
-        size++;
-        element = new StackElement(element, o);
-        assert size == deepCount();
-
-    }
-
-    @Override
-    public String toString() {
-        StackElement el = element;
-
-        if (element == null) {
-            return "<EMPTY>";
-        }
-
-        StringBuilder appender = new StringBuilder().append("[");
-        do {
-            appender.append(String.valueOf(el.value));
-            if (el.next != null) {
-                appender.append(", ");
-            }
-        } while ((el = el.next) != null);
-
-        appender.append("]");
-
-        return appender.toString();
-    }
+    return appender.toString();
+  }
 }

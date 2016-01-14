@@ -1,18 +1,17 @@
-/**
- * This file is part of Everit - Templating Text.
+/*
+ * Copyright (C) 2011 Everit Kft. (http://www.everit.biz)
  *
- * Everit - Templating Text is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Everit - Templating Text is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ *         http://www.apache.org/licenses/LICENSE-2.0
  *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Everit - Templating Text.  If not, see <http://www.gnu.org/licenses/>.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.everit.templating.text.internal.res;
 
@@ -22,32 +21,32 @@ import org.everit.templating.util.TemplateWriter;
 
 public class TextNode extends Node {
 
-    public TextNode(final char[] contents, final int begin, final int end) {
-        this.contents = contents;
-        this.begin = begin;
-        this.end = end;
-    }
+  public TextNode(final char[] contents, final int begin, final int end) {
+    this.contents = contents;
+    this.begin = begin;
+    this.end = end;
+  }
 
-    @Override
-    public void calculateContents(final char[] template) {
-    }
+  @Override
+  public void calculateContents(final char[] template) {
+  }
 
-    @Override
-    public boolean demarcate(final Node terminatingNode, final char[] template) {
-        return false;
-    }
+  @Override
+  public boolean demarcate(final Node terminatingNode, final char[] template) {
+    return false;
+  }
 
-    @Override
-    public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
-        int len = end - begin;
-        if (len != 0) {
-            appender.append(String.valueOf(contents, begin, len));
-        }
-        return next != null ? next.eval(appender, vars) : null;
+  @Override
+  public Object eval(final TemplateWriter appender, final Map<String, Object> vars) {
+    int len = end - begin;
+    if (len != 0) {
+      appender.append(String.valueOf(contents, begin, len));
     }
+    return next != null ? next.eval(appender, vars) : null;
+  }
 
-    @Override
-    public String toString() {
-        return "TextNode(" + begin + "," + end + ")";
-    }
+  @Override
+  public String toString() {
+    return "TextNode(" + begin + "," + end + ")";
+  }
 }

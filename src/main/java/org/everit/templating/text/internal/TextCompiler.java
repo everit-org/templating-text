@@ -238,7 +238,8 @@ public class TextCompiler {
   }
 
   public CompiledTemplateImpl compile() {
-    return new CompiledTemplateImpl(compileFrom(null, new ExecutionStack()), fragments);
+    return new CompiledTemplateImpl(compileFrom(null, new ExecutionStack()), fragments,
+        parserConfiguration);
   }
 
   public Node compileFrom(Node root, final ExecutionStack stack) {

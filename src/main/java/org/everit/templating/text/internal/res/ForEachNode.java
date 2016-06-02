@@ -131,7 +131,13 @@ public class ForEachNode extends Node {
 
     for (int i = 0; i < iters.length; i++) {
       Object o = ce[i].eval(vars);
-      iters[i] = new UniversalIterable<Object>(o).iterator();
+      try {
+        iters[i] = new UniversalIterable<Object>(o).iterator();
+      } catch (RuntimeException e) {
+        throw TextTemplateUtil.createCompileException(helper.getOriginalConfig().getName(),
+            "Error during evaluating foreach node in text template", getContents(), item[i].cStart,
+            e);
+      }
     }
 
     Map<String, Object> localVars = new InheritantMap<String, Object>(vars, true);

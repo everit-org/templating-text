@@ -18,6 +18,7 @@ package org.everit.templating.text.internal;
 import java.io.StringWriter;
 import java.util.Map;
 
+import org.everit.expression.ParserConfiguration;
 import org.everit.templating.text.internal.res.Node;
 import org.everit.templating.util.AbstractTemplateContext;
 import org.everit.templating.util.TemplateWriter;
@@ -26,17 +27,21 @@ public class TemplateContextImpl extends AbstractTemplateContext {
 
   private final Map<String, Node> fragments;
 
+  private final ParserConfiguration parserConfiguration;
+
   public TemplateContextImpl(final String fragment, final Map<String, Node> fragments,
-      final Map<String, Object> vars) {
+      final Map<String, Object> vars, final ParserConfiguration parserConfiguration) {
     super(fragment, vars);
     this.fragments = fragments;
+    this.parserConfiguration = parserConfiguration;
   }
 
   @Override
   protected String renderFragmentInternal(final String fragmentId, final Map<String, Object> vars) {
     Node fragmentNode = fragments.get(fragmentId);
     if (fragmentNode == null) {
-      throw new IllegalArgumentException("Unkown fragment: " + fragmentId);
+      throw new IllegalArgumentException(
+          "Unkown fragment '" + fragmentId + "' in template: " + parserConfiguration.getName());
     }
 
     StringWriter stringWriter = new StringWriter();

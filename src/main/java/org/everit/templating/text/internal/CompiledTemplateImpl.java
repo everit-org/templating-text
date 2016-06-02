@@ -18,6 +18,7 @@ package org.everit.templating.text.internal;
 import java.io.Writer;
 import java.util.Map;
 
+import org.everit.expression.ParserConfiguration;
 import org.everit.templating.CompiledTemplate;
 import org.everit.templating.TemplateConstants;
 import org.everit.templating.text.internal.res.Node;
@@ -32,11 +33,15 @@ public class CompiledTemplateImpl implements CompiledTemplate {
 
   private final Map<String, Node> fragments;
 
+  private final ParserConfiguration parserConfiguration;
+
   private final Node rootNode;
 
-  public CompiledTemplateImpl(final Node rootNode, final Map<String, Node> fragments) {
+  public CompiledTemplateImpl(final Node rootNode, final Map<String, Node> fragments,
+      final ParserConfiguration parserConfiguration) {
     this.rootNode = rootNode;
     this.fragments = fragments;
+    this.parserConfiguration = parserConfiguration;
   }
 
   @Override
@@ -61,7 +66,7 @@ public class CompiledTemplateImpl implements CompiledTemplate {
       node = fragments.get(fragmentId);
     }
     TemplateContextImpl templateContext =
-        new TemplateContextImpl(tmpFragmentId, fragments, scopedVars);
+        new TemplateContextImpl(tmpFragmentId, fragments, scopedVars, parserConfiguration);
 
     scopedVars.putWithoutChecks(TemplateConstants.VAR_TEMPLATE_CONTEXT, templateContext);
     node.eval(templateWriter, scopedVars);
